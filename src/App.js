@@ -5,9 +5,6 @@ import Button from '@mui/material/Button'
 import  SlateTranscriptEditor  from 'slate-transcript-editor';
 import vttToDraft from './import-adapter/vtt';
 
-import DemoTranscript from './sample/transcript.json'
-import { Box } from '@mui/system';
-
 class App extends React.Component {
 
   constructor(props) {
@@ -48,16 +45,13 @@ class App extends React.Component {
   
   handleLoadTranscriptJson = files => {
     const file = files[0];
-    console.log(file);
-    console.log('read ' + file.type);
+    // console.log(file);
+    // console.log('read ' + file.type);
     this.setState({ exportName: file.name.split('.')[0] });
     
     const fileReader = new FileReader();
-    console.log('okay');
     fileReader.onload = event => {
-      console.log('event')
-      // console.log(JSON.parse(event.target.result))
-      
+
       this.setState({
         transcriptData: vttToDraft(event.target.result)
       });
@@ -65,13 +59,6 @@ class App extends React.Component {
     fileReader.readAsText(file);
 
     
-  }
-  
-  loadTestTranscript = () => {
-    this.setState({
-      transcriptData: DemoTranscript
-    });
-    console.log(this.state)
   }
   
   render() {
