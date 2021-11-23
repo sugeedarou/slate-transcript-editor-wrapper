@@ -91,7 +91,7 @@ function preSegmentTextJson({ wordsList, paragraphs, numberOfCharPerLine }) {
 
 function subtitlesComposer({ words, paragraphs, type, numberOfCharPerLine, slateValue }) {
   let subtitlesJson;
-  if (type === 'vtt_speakers_paragraphs') {
+  if (type === 'vtt_speakers_paragraphs' ||type === 'vtt') {
     subtitlesJson = convertSlateValueToSubtitleJson(slateValue);
   } else {
     subtitlesJson = preSegmentTextJson({
