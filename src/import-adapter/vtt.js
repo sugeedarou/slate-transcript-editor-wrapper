@@ -55,7 +55,7 @@ const groupWordsInParagraphs = (vttText) => {
       vttLine = vttLine.slice(2);
     }
     if (vttLine.includes('-->')) {
-      if (pContent == undefined) {
+      if (pContent === undefined) {
         pContent = [];
         const lineSplit = vttLine.split(' --> ');
         pStart = timestringToFloat(lineSplit[0]);

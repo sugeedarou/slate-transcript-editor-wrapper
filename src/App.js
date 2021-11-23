@@ -2,7 +2,7 @@ import React from 'react';
 
 import './App.css';
 import Button from '@mui/material/Button'
-import  SlateTranscriptEditor  from 'slate-transcript-editor';
+import  SlateTranscriptEditor  from './slate-transcript-editor-master/src/components/index.js'
 import vttToDraft from './import-adapter/vtt';
 
 class App extends React.Component {
@@ -64,7 +64,7 @@ class App extends React.Component {
   render() {
   return (
     <div>
-      <Button onClick={ () => this.handleLoadMediaUrl()} variant="contained">Load Media URL</Button>
+      {/* <Button onClick={ () => this.handleLoadMediaUrl()} variant="contained">Load Media URL</Button> */}
       <Button variant="contained" component="label">
         Load Media File
       <input
