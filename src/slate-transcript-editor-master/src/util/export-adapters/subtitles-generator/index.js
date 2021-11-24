@@ -74,11 +74,21 @@ function convertSlateValueToSubtitleJson(slateValue) {
       return block;
     })
     .map((block) => {
-      return {
-        start: block.start,
-        end: block.children[0].words[block.children[0].words.length - 1].end,
-        speaker: block.speaker,
-        text: block.children[0].text,
+      try {
+        return {
+          start: block.start,
+          end: block.children[0].words[block.children[0].words.length - 1].end,
+          speaker: block.speaker,
+          text: block.children[0].text
+        };
+      } 
+      catch(e) {
+        return {
+          start:  block.start,
+          end:  block.start,
+          speaker:block.speaker ,
+          text:"<empty>"
+        };
       };
     });
 }
