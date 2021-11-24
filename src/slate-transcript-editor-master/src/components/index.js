@@ -620,19 +620,20 @@ function SlateTranscriptEditor(props) {
       // console.info('For now disabling enter key to split a paragraph, while figuring out the aligment issue');
       // handleSetPauseWhileTyping();
       // TODO: Edge case, hit enters after having typed some other words?
-      const isSuccess = SlateHelpers.handleSplitParagraph(editor);
-      if (props.handleAnalyticsEvents) {
-        // handles if click cancel and doesn't set speaker name
-        props.handleAnalyticsEvents('ste_handle_split_paragraph', {
-          fn: 'handleSplitParagraph',
-          isSuccess,
-        });
-      }
-      if (isSuccess) {
-        // as part of splitting paragraphs there's an alignement step
-        // so content is not counted as modified
-        setIsContentIsModified(false);
-      }
+      // commented to disable creating new paragraphs
+      // const isSuccess = SlateHelpers.handleSplitParagraph(editor);
+      // if (props.handleAnalyticsEvents) {
+      //   // handles if click cancel and doesn't set speaker name
+      //   props.handleAnalyticsEvents('ste_handle_split_paragraph', {
+      //     fn: 'handleSplitParagraph',
+      //     isSuccess,
+      //   });
+      // }
+      // if (isSuccess) {
+      //   // as part of splitting paragraphs there's an alignement step
+      //   // so content is not counted as modified
+      //   setIsContentIsModified(false);
+      // }
     }
     if (event.key === 'Backspace') {
       const isSuccess = SlateHelpers.handleDeleteInParagraph({ editor, event });
