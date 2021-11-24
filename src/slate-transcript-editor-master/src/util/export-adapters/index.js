@@ -11,6 +11,8 @@ import converSlateToDpe from './slate-to-dpe';
 import slateToDocx from '../export-adapters/docx';
 import subtitlesExportOptionsList from './subtitles-generator/list';
 import subtitlesGenerator from './subtitles-generator/index';
+import slateToVtt from './vtt/index'
+
 
 const captionTypeList = subtitlesExportOptionsList.map((list) => {
   return list.type;
@@ -38,6 +40,20 @@ const exportAdapter = ({ slateValue, type, ext, transcriptTitle, speakers, timec
         inlineTimecodes,
         hideTitle,
       });
+    case 'vtt':
+      return slateToVtt({
+        value: slateValue,
+        speakers,
+        timecodes: true
+      });
+    case 'vtt_speakers':
+    case 'vtt_speakers_paragraphs':
+      return slateToVtt({
+        value: slateValue,
+        speakers: true,
+        timecodes: true
+      });
+  
     default:
       if (isCaptionType(type)) {
         const editorContent = converSlateToDpe(slateValue);

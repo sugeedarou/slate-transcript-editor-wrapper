@@ -38,6 +38,7 @@ import { shortTimecode } from '../util/timecode-converter';
 import download from '../util/downlaod/index.js';
 import convertDpeToSlate from '../util/dpe-to-slate';
 // TODO: This should be moved in export utils
+import isBeginningOftheBlock from './slate-helpers/handle-split-paragraph/is-beginning-of-the-block';
 import insertTimecodesInLineInSlateJs from '../util/insert-timecodes-in-line-in-words-list';
 import pluck from '../util/pluk';
 import plainTextalignToSlateJs from '../util/export-adapters/slate-to-dpe/update-timestamps/plain-text-align-to-slate';
@@ -525,7 +526,7 @@ function SlateTranscriptEditor(props) {
         tmpValue = await handleRestoreTimecodes();
       }
 
-      if (isContentModified && isCaptionType(type)) {
+      if (isContentModified && isCaptionType(type) && false) {
         tmpValue = await handleRestoreTimecodes();
       }
       // export adapter does not doo any alignment
@@ -540,6 +541,13 @@ function SlateTranscriptEditor(props) {
         hideTitle,
         atlasFormat,
       });
+
+      if (ext=== 'vtt'){
+        let pre = 'WEBVTT\n\n';
+        pre += editorContnet
+        editorContnet = pre
+      }
+
 
       if (ext === 'json') {
         editorContnet = JSON.stringify(editorContnet, null, 2);
@@ -605,6 +613,23 @@ function SlateTranscriptEditor(props) {
     editor.redo();
   };
 
+  function rtrim(x) {
+    // This implementation removes whitespace from the right side
+    // of the input string.
+    return x.replace(/\s+$/gm, '');
+  }
+
+  function isEndOftheBlock(anchorOffset, focusOffset, totalChar){
+    return anchorOffset === totalChar && focusOffset ===totalChar;
+  }
+
+  const onPaste = async event =>{
+    event.preventDefault();
+    let text = event.clipboardData.getData('text/plain')
+    text = rtrim(text)
+    Transforms.insertText(editor, text);
+  }
+
   // const debounced_version = throttle(handleRestoreTimecodes, 3000, { leading: false, trailing: true });
   // TODO: revisit logic for
   // - splitting paragraph via enter key
@@ -634,6 +659,17 @@ function SlateTranscriptEditor(props) {
       //   // so content is not counted as modified
       //   setIsContentIsModified(false);
       // }
+    }
+    if (event.key === 'Delete'){
+      let totalChar = window.getSelection().anchorNode.length
+      if(totalChar === undefined){totalChar = 0};
+      let anchorOffset = editor.selection.anchor.offset
+      let focusOffset = editor.selection.focus.offset
+      let start = isBeginningOftheBlock(anchorOffset, focusOffset)
+      let end = isEndOftheBlock(anchorOffset, focusOffset, totalChar)
+      if(isEndOftheBlock(anchorOffset, focusOffset, totalChar)){
+        event.preventDefault();
+      }
     }
     if (event.key === 'Backspace') {
       const isSuccess = SlateHelpers.handleDeleteInParagraph({ editor, event });
@@ -892,6 +928,7 @@ function SlateTranscriptEditor(props) {
                         renderElement={renderElement}
                         renderLeaf={renderLeaf}
                         onKeyDown={handleOnKeyDown}
+                        onPaste={onPaste}
                       />
                     </Slate>
                   </section>
