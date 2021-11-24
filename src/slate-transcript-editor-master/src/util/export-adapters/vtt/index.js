@@ -53,16 +53,21 @@ const slateToVtt = ({
   .map(n => {
       let end_TimeCode
       let end_sec
+      let text = Node.string(n)
+      if(text===""||text===" ")
+      {
+        text = "empty"
+      }
       if(n.children[0].text===""){
         end_TimeCode = n.startTimecode
-        end_sec = n.start
+        end_sec = JSON.stringify((parseFloat(n.start)+0.01))
       }else{
         end_TimeCode = undefined
         end_sec = n.children[0].words.at(-1).end
       }
-      return `${timecodes ? `${secondsToTimecodeVtt(n.startTimecode,n.start)} --> ` : ''}${timecodes ? `${secondsToTimecodeVtt(end_TimeCode,end_sec)}\t` : ''} \n ${speakers ? `${toVttspk(n.speaker)}`  : ''}${Node.string(n)}`;
+      return `${timecodes ? `${secondsToTimecodeVtt(n.startTimecode,n.start)} --> ` : ''}${timecodes ? `${secondsToTimecodeVtt(end_TimeCode,end_sec)}\t` : ''} \n ${speakers ? `${toVttspk(n.speaker)}`  : ''}${text}`;
   }) // Join them all with line breaks denoting paragraphs.
-  .join('\n\n');
+  .join('\n\n')+'\n\n';
 };
 
 export default slateToVtt;
