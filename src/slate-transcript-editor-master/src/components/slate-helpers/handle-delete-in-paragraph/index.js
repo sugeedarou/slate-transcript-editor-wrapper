@@ -18,6 +18,9 @@ function handleDeleteInParagraph({ editor, event }) {
   if (isSameBlock(anchorPath, focusPath)) {
     if (isBeginningOftheBlock(anchorOffset, focusOffset)) {
       event.preventDefault();
+      //in order to disable deleting paragraphs
+      //if it should be enabled then delete the return line
+      return false;
       console.info('in the same block, but at the beginning of a paragraph for now you are not allowed to create an empty new line');
       const [blockNode, path] = SlateHelpers.getClosestBlock(editor);
       const currentBlockNode = blockNode;
