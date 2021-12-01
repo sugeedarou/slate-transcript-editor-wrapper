@@ -22,6 +22,7 @@ import EmojiSymbolsOutlinedIcon from '@material-ui/icons/EmojiSymbolsOutlined';
 import subtitlesExportOptionsList from '../../util/export-adapters/subtitles-generator/list.js';
 
 function SideBtns({
+  handleBackendSave,
   handleExport,
   isProcessing,
   isContentModified,
@@ -386,6 +387,16 @@ function SideBtns({
       </Tooltip> */}
         </>
       )}
+      <Button color="primary" onClick={() => {
+        handleBackendSave(false);
+      }}>
+        Save
+      </Button>
+      <Button color="primary" onClick={() => {
+        handleBackendSave(true);
+      }}>
+        Finish
+      </Button>
       <Grid item>
         <br />
       </Grid>

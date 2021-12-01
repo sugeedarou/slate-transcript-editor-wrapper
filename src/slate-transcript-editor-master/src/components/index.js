@@ -47,6 +47,8 @@ import exportAdapter, { isCaptionType } from '../util/export-adapters';
 import generatePreviousTimingsUpToCurrent from '../util/dpe-to-slate/generate-previous-timings-up-to-current';
 import SlateHelpers from './slate-helpers';
 
+import {draftToTrjson} from '../../../utils.js';
+
 const PLAYBACK_RATE_VALUES = [0.2, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5];
 const SEEK_BACK_SEC = 10;
 const PAUSE_WHILTE_TYPING_TIMEOUT_MILLISECONDS = 1500;
@@ -584,6 +586,24 @@ function SlateTranscriptEditor(props) {
     }
   };
 
+  const handleBackendSave = async (finished) => {
+    console.log("in handlebackendsave, finished:");
+    console.log(finished);
+    try {
+      setIsProcessing(true);
+      let content = getSlateContent();
+      // ???content = await handleRestoreTimecodes(true);
+      console.log(content);
+      let trjsonContent = draftToTrjson(content);
+      console.log(trjsonContent);
+
+      //TODO send request to Backend
+
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   /**
    * See explanation in `src/utils/dpe-to-slate/index.js` for how this function works with css injection
    * to provide current paragaph's highlight.
@@ -943,6 +963,7 @@ function SlateTranscriptEditor(props) {
 
           <Grid container item xs={12} sm={1} md={1} lg={1} xl={1}>
             <SideBtns
+              handleBackendSave={handleBackendSave}
               handleExport={handleExport}
               isProcessing={isProcessing}
               isContentModified={isContentModified}
