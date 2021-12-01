@@ -269,14 +269,16 @@ function SideBtns({
             </Link>
           </MenuItem> */}
         </Menu>
-
-        {/* {isEditable && (
+        <Grid item>
+          <br />
+        </Grid>
+        {isEditable && (
           <Tooltip title={<Typography variant="body1">save</Typography>}>
             <Button disabled={isProcessing} onClick={handleSave} color="primary">
               <SaveOutlinedIcon color={isContentSaved ? 'primary' : 'secondary'} />
             </Button>
           </Tooltip>
-        )} */}
+        )}
       </Grid>
       {isEditable && (
         <>

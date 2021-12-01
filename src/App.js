@@ -6,6 +6,7 @@ import  SlateTranscriptEditor  from './slate-transcript-editor-master/src/compon
 import vttToDraft from './import-adapter/vtt';
 import trjsonToDraft from './import-adapter/trjson';
 import { username, password, SERVER_URL } from './constants.js';
+import { dpeToTrjson } from './utils';
 
 class App extends React.Component {
 
@@ -13,6 +14,8 @@ class App extends React.Component {
     super(props);
 
     this.state = {
+      transcriptId: null,
+      correctionId: null,
       transcriptData: null,
       mediaUrl: null,
       authToken: "Token 54bfe8a9d247c3251f15f93d3c2e2d161780f389" //TODO: get Auth data from TR_EC
@@ -59,8 +62,8 @@ class App extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
-        currentCorrectionId = data.correction
-        this.getCorrection(currentCorrectionId)
+        this.setState({correctionId: data.correction})
+        this.getCorrection(this.state.correctionId)
         //this.getMedia(currentTranscriptId)
       })
       .catch((error) => {
@@ -162,6 +165,28 @@ class App extends React.Component {
 
     
   }
+
+  handleSave = dpe => {
+    console.log(dpe)
+    const trjson = dpeToTrjson(dpe)
+    console.log(trjson)
+    fetch(`${SERVER_URL}/api/edt/corrections/${this.state.correctionId}/`, {
+      method: 'PUT',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': this.state.authToken,
+      }),
+      body: JSON.stringify({trfile_json: trjson}),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        //TODO: Do something after saving?
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
   
   render() {
   return (
@@ -194,6 +219,7 @@ class App extends React.Component {
         mediaUrl={this.state.mediaUrl}
         transcriptData={this.state.transcriptData}
         title={this.state.exportName}
+        handleSaveEditor={this.handleSave}
         showTitle={true}
       />}
       
