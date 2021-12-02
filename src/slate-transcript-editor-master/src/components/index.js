@@ -563,7 +563,7 @@ function SlateTranscriptEditor(props) {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (finished) => {
     try {
       setIsProcessing(true);
       const format = props.autoSaveContentType ? props.autoSaveContentType : 'digitalpaperedit';
@@ -577,7 +577,7 @@ function SlateTranscriptEditor(props) {
       }
 
       if (props.handleSaveEditor && props.isEditable) {
-        props.handleSaveEditor(editorContnet);
+        props.handleSaveEditor(editorContnet, finished);
       }
       setIsContentIsModified(false);
       setIsContentSaved(true);

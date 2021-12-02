@@ -274,7 +274,7 @@ function SideBtns({
         </Grid>
         {isEditable && (
           <Tooltip title={<Typography variant="body1">save</Typography>}>
-            <Button disabled={isProcessing} onClick={handleSave} color="primary">
+            <Button disabled={isProcessing} onClick={() => handleSave(false)} color="primary">
               <SaveOutlinedIcon color={isContentSaved ? 'primary' : 'secondary'} />
             </Button>
           </Tooltip>
@@ -389,14 +389,12 @@ function SideBtns({
       </Tooltip> */}
         </>
       )}
-      <Button color="primary" onClick={() => {
+      {/* <Button color="primary" onClick={() => {
         handleBackendSave(false);
       }}>
         Save
-      </Button>
-      <Button color="primary" onClick={() => {
-        handleBackendSave(true);
-      }}>
+      </Button> */}
+      <Button color="primary" onClick={() => handleSave(true)}>
         Finish
       </Button>
       <Grid item>

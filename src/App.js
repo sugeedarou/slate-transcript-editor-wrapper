@@ -166,17 +166,22 @@ class App extends React.Component {
     
   }
 
-  handleSave = dpe => {
+  handleSave = (dpe, finished) => {
     console.log(dpe)
     const trjson = dpeToTrjson(dpe)
+    console.log("sending the following to server:");
     console.log(trjson)
+    let body = {trfile_json: trjson};
+    if (finished) {
+      body["finished"] = true;
+    }
     fetch(`${SERVER_URL}/api/edt/corrections/${this.state.correctionId}/`, {
       method: 'PUT',
       headers: new Headers({
         'Content-Type': 'application/json',
         'Authorization': this.state.authToken,
       }),
-      body: JSON.stringify({trfile_json: trjson}),
+      body: JSON.stringify(body),
     })
       .then((response) => response.json())
       .then((data) => {

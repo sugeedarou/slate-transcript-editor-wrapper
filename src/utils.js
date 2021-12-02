@@ -24,9 +24,31 @@ const dpeToTrjson = (dpe) => {
         result.push(words.filter((word) => word.start >= paragraph.start && word.end <= paragraph.end))
     }
 
-    return result
+    return interpolateTrJson(result);
 
 }
+
+const interpolateTrJson = (trjson) => {
+    let res = [];
+    for (let paragraph of trjson) {
+        const start = paragraph[0].start;
+        const end = paragraph[paragraph.length - 1].end;
+        const duration = end - start;
+        const numOfChars = paragraph.map((word) => word.word).join('').length;
+        let newp = [];
+        let currChar = 0;
+        for (let word of paragraph) {
+            newp.push({
+                word: word.word, 
+                start: start + ((currChar / numOfChars) * duration),
+                end: start + (((currChar + word.word.length) / numOfChars) * duration)
+            });
+            currChar += word.word.length;
+        }
+        res.push(newp);
+    }
+    return res;
+};
 
 export {draftToTrjson};
 export {dpeToTrjson}
