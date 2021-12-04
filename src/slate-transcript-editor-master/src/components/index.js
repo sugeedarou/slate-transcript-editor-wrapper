@@ -543,7 +543,7 @@ function SlateTranscriptEditor(props) {
       });
 
       if (ext=== 'vtt'){
-        let pre = 'WEBVTT\n\n';
+        let pre = `WEBVTT\n\nNOTE ${props.id}\n\n`;
         pre += editorContnet
         editorContnet = pre
       }

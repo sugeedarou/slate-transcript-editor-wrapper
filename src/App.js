@@ -13,6 +13,7 @@ class App extends React.Component {
     this.state = {
       transcriptData: null,
       mediaUrl: null,
+      id: null,
     };
   }
   
@@ -51,9 +52,11 @@ class App extends React.Component {
     
     const fileReader = new FileReader();
     fileReader.onload = event => {
-
+      const data = vttToDraft(event.target.result);
+      console.log(data[1]);
       this.setState({
-        transcriptData: vttToDraft(event.target.result)
+        transcriptData: data[0],
+        id: data[1]
       });
     };
     fileReader.readAsText(file);
@@ -84,10 +87,11 @@ class App extends React.Component {
       />
       </Button>
 
-      {this.state.transcriptData && this.state.mediaUrl && 
+      {this.state.transcriptData && this.state.mediaUrl && this.state.id &&
       <SlateTranscriptEditor
         mediaUrl={this.state.mediaUrl}
         transcriptData={this.state.transcriptData}
+        id={this.state.id}
         title={this.state.exportName}
         showTitle={true}
       />}

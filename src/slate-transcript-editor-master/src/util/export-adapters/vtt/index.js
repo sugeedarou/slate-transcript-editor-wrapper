@@ -65,7 +65,7 @@ const slateToVtt = ({
         end_TimeCode = undefined
         end_sec = n.children[0].words.at(-1).end
       }
-      return `${timecodes ? `${secondsToTimecodeVtt(n.startTimecode,n.start)} --> ` : ''}${timecodes ? `${secondsToTimecodeVtt(end_TimeCode,end_sec)}\t` : ''} \n ${speakers ? `${toVttspk(n.speaker)}`  : ''}${text}`;
+      return `${timecodes ? `${secondsToTimecodeVtt(n.startTimecode,n.start)} --> ` : ''}${timecodes ? `${secondsToTimecodeVtt(end_TimeCode,end_sec)}\t` : ''} \n${speakers ? `${toVttspk(n.speaker)}`  : ''}${text}`;
   }) // Join them all with line breaks denoting paragraphs.
   .join('\n\n')+'\n\n';
 };

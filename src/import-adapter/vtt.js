@@ -46,11 +46,19 @@ const groupWordsInParagraphs = (vttText) => {
   // remove first element
   vttLines.shift();
   let pStart, pEnd, pContent, paragraph;
+  let gotID = false;
+  let id;
   for (let vttLine of vttLines) {
     // e.g. '00:00:31.979 --> 00:00:38.409'
     vttLine = vttLine.trim();
     if (!isNaN(vttLine)) { continue; }
-    if (vttLine.startsWith('NOTE ')) { continue; }
+    if (vttLine.startsWith('NOTE ')) { 
+      if (!gotID) {
+        id = parseInt(vttLine.split(' ')[1]);
+        gotID = true;
+      }
+      continue;
+    }
     if (vttLine.startsWith('- ')) {
       vttLine = vttLine.slice(2);
     }
@@ -86,7 +94,7 @@ const groupWordsInParagraphs = (vttText) => {
   results.push(paragraph);
   console.log(results);
 
-  return results;
+  return [results, id];
 };
 
 const vttToDraft = (vttText) => {
@@ -94,7 +102,9 @@ const vttToDraft = (vttText) => {
   const paragraphs = [];
   let words = [];
 
-  const wordsByParagraphs = groupWordsInParagraphs(vttText);
+  const data = groupWordsInParagraphs(vttText);
+  const wordsByParagraphs = data[0];
+  const id = data[1];
 
   wordsByParagraphs.forEach((paragraph, i) => {
     const paragraphObj = {
@@ -109,7 +119,7 @@ const vttToDraft = (vttText) => {
   });
 
   console.log({paragraphs, words})
-  return {paragraphs, words};
+  return [{paragraphs, words}, id];
 };
 
 export default vttToDraft;
