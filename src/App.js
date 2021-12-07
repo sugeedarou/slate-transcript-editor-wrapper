@@ -4,6 +4,7 @@ import './App.css';
 import Button from '@mui/material/Button'
 import  SlateTranscriptEditor  from './slate-transcript-editor-master/src/components/index.js'
 import vttToDraft from './import-adapter/vtt';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 class App extends React.Component {
 
@@ -63,12 +64,23 @@ class App extends React.Component {
 
     
   }
+  checkTranscriptId = () => {
+    if(this.state.transcriptData && !this.state.id) {
+      alert('Transcript id missing in VTT. Please use another transcript');
+    }
+  }
+  
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.transcriptData !== this.state.transcriptData) {
+      this.checkTranscriptId();
+    }
+  }
   
   render() {
   return (
     <div>
       {/* <Button onClick={ () => this.handleLoadMediaUrl()} variant="contained">Load Media URL</Button> */}
-      <Button variant="contained" component="label">
+      <Button variant="contained" component="label" style={{margin: "10px", marginRight: "0"}}>
         Load Media File
       <input
         hidden
@@ -76,8 +88,9 @@ class App extends React.Component {
         id={ 'mediaFile' }
         onChange={ e => this.handleLoadMedia(e.target.files) }
       />
+      {this.state.mediaUrl && <CheckCircleIcon style={{marginLeft: "10px"}}/>}
       </Button>
-      <Button variant="contained" component="label">
+      <Button variant="contained" component="label" style={{margin: "10px"}}>
         Load Transcript (vtt)
       <input
         hidden
@@ -85,6 +98,7 @@ class App extends React.Component {
         id={ 'transcriptFile' }
         onChange={ e => this.handleLoadTranscriptJson(e.target.files) }
       />
+      {this.state.transcriptData && this.state.id && <CheckCircleIcon style={{marginLeft: "10px"}}/>}
       </Button>
 
       {this.state.transcriptData && this.state.mediaUrl && this.state.id &&
