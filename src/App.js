@@ -7,6 +7,8 @@ import vttToDraft from './import-adapter/vtt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 class App extends React.Component {
+  
+  SERVER_URL = ''
 
   constructor(props) {
     super(props);
@@ -64,6 +66,22 @@ class App extends React.Component {
 
     
   }
+
+  uploadTranscript = (vttBody) => {
+    let pre = `WEBVTT\n\nNOTE ${this.state.id}\n\n`;
+    const vttComplete = pre + vttBody
+    
+    fetch(`${this.SERVER_URL}/tasks/api/return/`, {
+      method: 'POST',
+      body: vttComplete
+    }).then((response) => console.log(response))
+      .catch((error) => {
+        console.log('error:')
+        console.log(error);
+      });
+    
+  }
+
   checkTranscriptId = () => {
     if(this.state.transcriptData && !this.state.id) {
       alert('Transcript id missing in VTT. Please use another transcript');
@@ -108,6 +126,7 @@ class App extends React.Component {
         id={this.state.id}
         title={this.state.exportName}
         showTitle={true}
+        handleSaveEditor={this.uploadTranscript}
       />}
       
     </div>

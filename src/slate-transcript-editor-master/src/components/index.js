@@ -565,7 +565,9 @@ function SlateTranscriptEditor(props) {
     try {
       setIsProcessing(true);
       const format = props.autoSaveContentType ? props.autoSaveContentType : 'digitalpaperedit';
-      const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
+      // const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
+      const editorContnet = await handleExport({ type: `vtt`, isDownload: false });
+      
       if (props.handleAnalyticsEvents) {
         // handles if click cancel and doesn't set speaker name
         props.handleAnalyticsEvents('ste_handle_save', {
