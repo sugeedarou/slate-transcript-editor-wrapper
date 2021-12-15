@@ -70,14 +70,23 @@ class App extends React.Component {
   uploadTranscript = (vttBody) => {
     let pre = `WEBVTT\n\nNOTE ${this.state.id}\n\n`;
     const vttComplete = pre + vttBody
+    let data = new FormData();
+    data.append('cfile', new Blob([vttComplete], {type: 'text/vtt'}))
     
     fetch(`${this.SERVER_URL}/tasks/api/return/`, {
       method: 'POST',
-      body: vttComplete
-    }).then((response) => console.log(response))
+      body: data
+    }).then((response) => {
+      if (response.status == 200) {
+        alert('Successfully sumbitted!');
+      } else {
+        alert('ERROR. Could not submit.');
+      }
+    })
       .catch((error) => {
         console.log('error:')
         console.log(error);
+        alert('ERROR. Server error.');
       });
     
   }
