@@ -29,7 +29,7 @@ function LoginPage() {
     <div className="App">
       <header className="App-header">
         <h1 style={{ color: "#ffffff", fontSize: 75 }}>
-          Automatic Transcriber
+        Transcription Corrector
         </h1>
         <div
           style={{
@@ -72,7 +72,7 @@ function LoginPage() {
             placeholder=" Password"
           ></input>
 
-          <p style={{ fontSize: 10, textAlign: "start" }}>Forgot Password?</p>
+          {/*<p style={{ fontSize: 10, textAlign: "start" }}>Forgot Password?</p>*/}
 
           <button
             onClick={callLogin}
@@ -104,15 +104,7 @@ function LoginPage() {
             Do not have an account? register now!
           </Link>
         </div>
-        <img
-          src={require("../images/background.png")}
-          style={{
-            bottom: "0%",
-            backgroundColor: "rgba(0,0,0,0)",
-            width: "100%",
-            position: "absolute",
-          }}
-        ></img>
+        
         <Toaster></Toaster>
       </header>
     </div>

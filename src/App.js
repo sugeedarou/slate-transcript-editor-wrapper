@@ -9,6 +9,9 @@ function App() {
         <Switch>
           <Route exact path={"/"}>
              <ToolPage></ToolPage>
+          </Route> 
+          <Route exact path={"/login"}>
+             <LoginPage></LoginPage>
           </Route>        
         </Switch>
     </Router>
