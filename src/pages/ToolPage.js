@@ -5,6 +5,9 @@ import Button from '@mui/material/Button'
 import  SlateTranscriptEditor  from '../slate-transcript-editor-master/src/components/index.js'
 import vttToDraft from '../import-adapter/vtt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { isAuth } from '../user/User';
+import { useHistory, Redirect } from "react-router-dom";
+import LogoutButton from "../components/LogoutButton";
 
 class ToolPage extends React.Component {
   
@@ -104,8 +107,11 @@ class ToolPage extends React.Component {
   }
   
   render() {
+    if(isAuth())
+    {
   return (
     <div>
+      <LogoutButton></LogoutButton>
       {/* <Button onClick={ () => this.handleLoadMediaUrl()} variant="contained">Load Media URL</Button> */}
       <Button variant="contained" component="label" style={{margin: "10px", marginRight: "0"}}>
         Load Media File
@@ -140,6 +146,10 @@ class ToolPage extends React.Component {
       
     </div>
   )
+      }
+      else {
+        return <Redirect to="login"></Redirect>;
+      }
   }
 }
 
