@@ -3,6 +3,7 @@ import LoginPage from "./pages/LoginPage"
 import ToolPage from "./pages/ToolPage"
 import RegisterPage from "./pages/RegisterPage"
 import {BrowserRouter as Router,Route,Switch} from 'react-router-dom' 
+import SlateTranscriptEditorPage from "./pages/SlateTranscriptEditorPage";
 
 function App() {
   return (
@@ -11,6 +12,9 @@ function App() {
           <Route exact path={"/"}>
              <ToolPage></ToolPage>
           </Route> 
+          <Route exact path={"/editor"}>
+             <SlateTranscriptEditorPage></SlateTranscriptEditorPage>
+          </Route>
           <Route exact path={"/login"}>
              <LoginPage></LoginPage>
           </Route>   

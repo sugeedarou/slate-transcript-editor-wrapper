@@ -46,6 +46,9 @@ import updateBloocksTimestamps from '../util/export-adapters/slate-to-dpe/update
 import exportAdapter, { isCaptionType } from '../util/export-adapters';
 import generatePreviousTimingsUpToCurrent from '../util/dpe-to-slate/generate-previous-timings-up-to-current';
 import SlateHelpers from './slate-helpers';
+import SetVttCorrection from '../../../api/SetVttCorrection';
+import toast, { Toaster } from 'react-hot-toast';
+import { getTaskId } from '../../../user/User';
 
 const PLAYBACK_RATE_VALUES = [0.2, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5];
 const SEEK_BACK_SEC = 10;
@@ -562,12 +565,37 @@ function SlateTranscriptEditor(props) {
   };
 
   const handleSave = async () => {
-    try {
+
+    try
+    {
+      setIsProcessing(true);
+      //const format = props.autoSaveContentType ? props.autoSaveContentType : 'digitalpaperedit';
+      // const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
+      const editorContnet = await handleExport({ type: `vtt`, isDownload: false });
+      
+      let task_id = getTaskId()
+      let response = await SetVttCorrection(task_id,"",editorContnet)
+      console.log(editorContnet)
+      console.log('..........................')
+      console.log(response)
+      if(response)
+        toast.success("Uploaded to the server successfully", { position: "bottom-center" });
+      else
+        toast.error("failed to uploaded to the server", { position: "bottom-center" });
+      ////////////////////////////////////////////////
+    }
+    finally {
+      setIsProcessing(false);
+    }
+
+    //old implementation
+    /*try {
       setIsProcessing(true);
       const format = props.autoSaveContentType ? props.autoSaveContentType : 'digitalpaperedit';
       // const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
       const editorContnet = await handleExport({ type: `vtt`, isDownload: false });
-      
+      console.log("....................................................");
+      console.log(editorContnet);
       if (props.handleAnalyticsEvents) {
         // handles if click cancel and doesn't set speaker name
         props.handleAnalyticsEvents('ste_handle_save', {
@@ -583,7 +611,7 @@ function SlateTranscriptEditor(props) {
       setIsContentSaved(true);
     } finally {
       setIsProcessing(false);
-    }
+    }*/
   };
 
   /**
@@ -968,6 +996,7 @@ function SlateTranscriptEditor(props) {
           </Grid>
         </Grid>
       </Container>
+      <Toaster></Toaster>
     </div>
   );
 }
