@@ -9,6 +9,8 @@ import { getToken, isAuth, setTaskId } from "../user/User";
 import { useHistory, Redirect } from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
+import toast, { Toaster } from 'react-hot-toast';
+
 class ToolPage extends React.Component {
   SERVER_URL = "";
 
@@ -20,6 +22,7 @@ class ToolPage extends React.Component {
       mediaUrl: null,
       id: null,
       taskId: "",
+      fileName:""
     };
   }
 
@@ -56,14 +59,15 @@ class ToolPage extends React.Component {
     this.setState({ exportName: file.name.split(".")[0] });
 
     const fileReader = new FileReader();
+    fileReader.fileName = file.name
     fileReader.onload = (event) => {
       const data = vttToDraft(event.target.result);
-      console.log(data[1]);
-      console.log(data[0]);
-      console.log('.........................');
+      
+      setTaskId(data[1]);
       this.setState({
         transcriptData: data[0],
-        id: data[1],
+        id:"task_id:"+data[1],
+        fileName:event.target.fileName
       });
     };
     fileReader.readAsText(file);
@@ -74,10 +78,11 @@ class ToolPage extends React.Component {
     // console.log('read ' + file.type);
     this.setState({ exportName: this.state.taskId });
     const data = vttToDraft(text);
-    setTaskId(this.state.taskId)
+    setTaskId(this.state.taskId);
     this.setState({
       transcriptData: data[0],
-      id:'task_id: '+ this.state.taskId,
+      id:"task_id:"+data[1],
+      fileName:""
     });
   };
 
@@ -105,25 +110,23 @@ class ToolPage extends React.Component {
       });
   };
 
-  checkTranscriptId = () => {
+  /*checkTranscriptId = () => {
     if (this.state.transcriptData && !this.state.id) {
       alert("Transcript id missing in VTT. Please use another transcript");
     }
-  };
+  };*/
 
-  async getVttFromId()
-  {
-    let token =  getToken();
-    let text = await GetVttFromId(token,this.state.taskId);
-    if(text)
-      this.handleLoadTranscriptFromServer(text);
-    
+  async getVttFromId() {
+    let token = getToken();
+    let text = await GetVttFromId(token, this.state.taskId);
+    if (text) this.handleLoadTranscriptFromServer(text);
+    else toast.error("Failed to load the file, please check your task id", { position: "bottom-center" });
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.transcriptData !== this.state.transcriptData) {
+    /*if (prevState.transcriptData !== this.state.transcriptData) {
       this.checkTranscriptId();
-    }
+    }*/
   }
 
   render() {
@@ -166,64 +169,89 @@ class ToolPage extends React.Component {
               </p>
             </div>
 
-<div style={{height:15}}>
-
-</div>
+            <div style={{ height: 15 }}></div>
             <div
               style={{
                 backgroundColor: "rgba(255,255,255,0.05)",
                 borderRadius: 10,
                 width: "30%",
                 padding: 20,
+                
               }}
             >
-            <Button
-              variant="contained"
-              component="label"
-              style={{ margin: "10px" }}
-            >
-              Load Transcript (vtt)
-              <input
-                hidden
-                type={"file"}
-                id={"transcriptFile"}
-                onChange={(e) => this.handleLoadTranscriptJson(e.target.files)}
-              />
-              {this.state.transcriptData && this.state.id && (
-                <CheckCircleIcon style={{ marginLeft: "10px" }} />
-              )}
-            </Button>
+              
 
-            <p>OR</p>
-            <div style={{ display: "flex", flexDirection: "row",alignContent:'center',justifyContent:'center',justifyItems:'center' }}>
-            <input
-            style={{
-              backgroundColor: "#224957",
-              width: "100%",
-              height: 30,
-              marginTop: 10,
-              borderRadius: 7,
-              color: "#ffffff",
-              borderWidth: 0,
-              alignSelf:'center'
-            }}
-            onChange={(e) => {
-              this.setState({taskId:e.target.value});
-            }}
-            placeholder=" Enter the task id"
-          ></input>
-            <button onClick={()=>this.getVttFromId()} style={{alignSelf:'center',marginLeft:10}}>Submit</button>
-          </div>
+              
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                 
+                }}
+              >
+                <input
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.7)",
+                    width: "100%",
+                    height: 30,
+                    marginTop: 10,
+                    borderRadius: 7,
+                    color: "#000000",
+                    borderWidth: 0,
+                    alignSelf: "center",
+                    fontWeight:'bold',
+                    borderWidth:2
+                  }}
+                  onChange={(e) => {
+                    this.setState({ taskId: e.target.value });
+                  }}
+                  placeholder=" Enter the task id"
+                ></input>
+                <button
+                  onClick={() => this.getVttFromId()}
+                  style={{ alignSelf: "center", marginLeft: 10 ,backgroundColor:"#1976D2",borderColor:"#1976D2",borderRadius:3,marginTop:10,color:"white",padding:3}}
+                >
+                  Submit
+                </button>
+              </div>
+              <p style={{fontSize:25}}>OR</p>
+              <Button
+                variant="contained"
+                component="label"
+                style={{ margin: "10px",fontSize:10 }}
+              >
+                Load Transcript (vtt)
+                <input
+                  hidden
+                  type={"file"}
+                  id={"transcriptFile"}
+                  onChange={(e) =>
+                    this.handleLoadTranscriptJson(e.target.files)
+                  }
+                />
+                {this.state.transcriptData && this.state.id && (
+                  <CheckCircleIcon style={{ marginLeft: "10px" }} />
+                )}
+              </Button>
             </div>
 
             {this.state.transcriptData &&
-              this.state.mediaUrl &&
-              this.state.id && (
-                <Redirect  to={{pathname:"editor",
-              state:{transcriptData:this.state.transcriptData,mediaUrl:this.state.mediaUrl,id:this.state.id,title:this.state.exportName,uploadTranscript:this.state.uploadTranscript}
-              }}></Redirect>
-                
+              this.state.mediaUrl && (
+                <Redirect
+                  to={{
+                    pathname: "editor",
+                    state: {
+                      fileName:this.state.fileName,
+                      transcriptData: this.state.transcriptData,
+                      mediaUrl: this.state.mediaUrl,
+                      id: this.state.id,
+                      exportName: this.state.exportName,
+                      uploadTranscript: this.state.uploadTranscript,
+                    },
+                  }}
+                ></Redirect>
               )}
+              <Toaster></Toaster>
           </header>
         </div>
       );
