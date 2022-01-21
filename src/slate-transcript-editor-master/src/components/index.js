@@ -572,12 +572,7 @@ function SlateTranscriptEditor(props) {
       //const format = props.autoSaveContentType ? props.autoSaveContentType : 'digitalpaperedit';
       // const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
       const editorContnet = await handleExport({ type: `vtt`, isDownload: false });
-      
-      let task_id = getTaskId()
-      let response = await SetVttCorrection(task_id,"",editorContnet)
-      console.log(editorContnet)
-      console.log('..........................')
-      console.log(response)
+      let response = await SetVttCorrection(props.fileName,editorContnet)
       if(response)
         toast.success("Uploaded to the server successfully", { position: "bottom-center" });
       else
