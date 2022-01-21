@@ -54,7 +54,7 @@ const groupWordsInParagraphs = (vttText) => {
     if (!isNaN(vttLine)) { continue; }
     if (vttLine.startsWith('NOTE ')) { 
       if (!gotID) {
-        id = parseInt(vttLine.split(' ')[1]);
+        id = vttLine.split('task_id:')[1];
         gotID = true;
       }
       continue;
@@ -107,6 +107,10 @@ const vttToDraft = (vttText) => {
   const id = data[1];
 
   wordsByParagraphs.forEach((paragraph, i) => {
+    if(!(paragraph.words[0]))
+    {
+      return
+    }
     const paragraphObj = {
       id: i,
       speaker: `TBC ${ i }`,
@@ -115,7 +119,6 @@ const vttToDraft = (vttText) => {
     }
     paragraphs.push(paragraphObj)
     words = words.concat(paragraph.words)
-
   });
 
   console.log({paragraphs, words})
