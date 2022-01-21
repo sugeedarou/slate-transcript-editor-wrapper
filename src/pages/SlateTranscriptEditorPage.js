@@ -8,6 +8,8 @@ import { useHistory, Redirect } from "react-router-dom";
 import SlateTranscriptEditor from "../slate-transcript-editor-master/src/components/index.js";
 import { isAuth } from "../user/User";
 import {useLocation} from 'react-router-dom';
+import LogoutButton from "../components/LogoutButton";
+import BackButton from "../components/BackButton";
 
 function SlateTranscriptEditorPage() {
   const props = useLocation();
@@ -16,6 +18,9 @@ function SlateTranscriptEditorPage() {
   console.log(props.state.id)
   if (isAuth()) {
     return (
+      <div>
+      <BackButton></BackButton>
+      <LogoutButton></LogoutButton>
       <SlateTranscriptEditor
         mediaUrl={props.state.mediaUrl}
         transcriptData={props.state.transcriptData}
@@ -23,7 +28,9 @@ function SlateTranscriptEditorPage() {
         title={props.state.exportName}
         showTitle={true}
         handleSaveEditor={props.state.uploadTranscript}
+        fileName={props.state.fileName}
       />
+      </div>
     );
   } else {
     return <Redirect to="login"></Redirect>;
