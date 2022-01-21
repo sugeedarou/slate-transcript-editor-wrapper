@@ -9,6 +9,7 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
+import BackupOutlined from '@material-ui/icons/BackupOutlined';
 import KeyboardReturnOutlinedIcon from '@material-ui/icons/KeyboardReturnOutlined';
 import MusicNoteOutlinedIcon from '@material-ui/icons/MusicNoteOutlined';
 import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
@@ -274,7 +275,7 @@ function SideBtns({
         {isEditable && (
           <Tooltip title={<Typography variant="body1">Upload to server</Typography>}>
             <Button disabled={isProcessing} onClick={handleSave} color="primary">
-              <SaveOutlinedIcon color={isContentSaved ? 'primary' : 'secondary'} />
+              <BackupOutlined color={isContentSaved ? 'primary' : 'secondary'} />
             </Button>
           </Tooltip>
         )}
