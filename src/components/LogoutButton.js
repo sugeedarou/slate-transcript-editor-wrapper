@@ -20,7 +20,7 @@ export default function LogoutButton()
               zIndex: 10,
               padding: 10,
               borderRadius: 10,
-              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
               color: "white",
               border: "none",
               fontSize: "0.75em",
