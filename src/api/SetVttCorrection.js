@@ -1,14 +1,12 @@
 import { getToken } from "../user/User";
 
- export default async function SetVttCorrection(task_id,vtt_name,vtt_content)
+ export default async function SetVttCorrection(vtt_name,vtt_content)
  {
      let response;
      var myHeaders = new Headers();
      let token = getToken()
      myHeaders.append("Authorization", "Token "+token);
      var formdata = new FormData();
-     if(task_id!="")
-        formdata.append("task_id",task_id );
     if(vtt_name!="")
         formdata.append("vtt_name", vtt_name);
     formdata.append("vtt", vtt_content);
