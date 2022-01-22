@@ -113,7 +113,8 @@ const vttToDraft = (vttText) => {
     }
     const paragraphObj = {
       id: i,
-      speaker: `TBC ${ i }`,
+      //speaker: `TBC ${ i }`,
+      speaker: ``,
       start: paragraph.words[0].start,
       end: paragraph.words.at(-1).end,
     }
