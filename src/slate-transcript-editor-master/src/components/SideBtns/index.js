@@ -56,7 +56,7 @@ function SideBtns({
   return (
     <Grid container direction="column" justifycontent="flex-start" alignItems="stretch">
       <Grid item>
-        <Tooltip title={<Typography variant="body1">Export options</Typography>}>
+        <Tooltip title={<Typography variant="body1">Download</Typography>}>
           <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleMenuClick}>
             <SaveAltIcon color="primary" /> <KeyboardArrowDownIcon color="primary" />
           </Button>
@@ -273,7 +273,7 @@ function SideBtns({
             <br />
           </Grid>
         {isEditable && (
-          <Tooltip title={<Typography variant="body1">Upload to server</Typography>}>
+          <Tooltip title={<Typography variant="body1">Submit Task</Typography>}>
             <Button disabled={isProcessing} onClick={handleSave} color="primary">
               <BackupOutlined color={isContentSaved ? 'primary' : 'secondary'} />
             </Button>
