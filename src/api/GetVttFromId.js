@@ -1,8 +1,3 @@
-/**
- * log in api
- * returns the token if login succeed
- * returns false if login failed
- */
 export default async function GetVttFromId(token, id) {
   let response;
   var myHeaders = new Headers();

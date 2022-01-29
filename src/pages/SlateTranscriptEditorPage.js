@@ -1,10 +1,6 @@
 import "../App.css";
-import React, { useState } from "react";
-import login from "../api/Login";
-import ClipLoader from "react-spinners/ClipLoader";
-import { auth } from "../user/User";
-import toast, { Toaster } from "react-hot-toast";
-import { useHistory, Redirect } from "react-router-dom";
+import React from "react";
+import { Redirect } from "react-router-dom";
 import SlateTranscriptEditor from "../slate-transcript-editor-master/src/components/index.js";
 import { isAuth } from "../user/User";
 import {useLocation} from 'react-router-dom';

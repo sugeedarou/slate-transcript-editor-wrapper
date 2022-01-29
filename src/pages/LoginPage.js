@@ -5,7 +5,6 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { Link, useHistory } from "react-router-dom";
 import { auth } from "../user/User";
 import toast, { Toaster } from 'react-hot-toast';
-import * as qs from 'query-string';
 
 function LoginPage() {
   const history = useHistory();

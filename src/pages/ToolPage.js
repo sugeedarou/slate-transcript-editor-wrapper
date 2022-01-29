@@ -2,17 +2,14 @@ import React from "react";
 
 import "../App.css";
 import Button from "@mui/material/Button";
-import SlateTranscriptEditor from "../slate-transcript-editor-master/src/components/index.js";
 import vttToDraft from "../import-adapter/vtt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { getToken, isAuth, setTaskId } from "../user/User";
-import { useHistory, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
 import toast, { Toaster } from "react-hot-toast";
-import { useLocation } from "react-router-dom";
 import * as qs from "query-string";
-import PropTypes from "prop-types";
 
 class ToolPage extends React.Component {
   SERVER_URL = "";
