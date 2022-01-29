@@ -9,7 +9,10 @@ import { getToken, isAuth, setTaskId } from "../user/User";
 import { useHistory, Redirect } from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
+import { useLocation } from "react-router-dom";
+import * as qs from "query-string";
+import PropTypes from "prop-types";
 
 class ToolPage extends React.Component {
   SERVER_URL = "";
@@ -22,7 +25,7 @@ class ToolPage extends React.Component {
       mediaUrl: null,
       id: null,
       taskId: "",
-      fileName:""
+      fileName: "",
     };
   }
 
@@ -59,15 +62,15 @@ class ToolPage extends React.Component {
     this.setState({ exportName: file.name.split(".")[0] });
 
     const fileReader = new FileReader();
-    fileReader.fileName = file.name
+    fileReader.fileName = file.name;
     fileReader.onload = (event) => {
       const data = vttToDraft(event.target.result);
-      
+
       setTaskId(data[1]);
       this.setState({
         transcriptData: data[0],
-        id:"task_id:"+data[1],
-        fileName:event.target.fileName
+        id: "task_id:" + data[1],
+        fileName: event.target.fileName,
       });
     };
     fileReader.readAsText(file);
@@ -81,8 +84,8 @@ class ToolPage extends React.Component {
     setTaskId(this.state.taskId);
     this.setState({
       transcriptData: data[0],
-      id:"task_id:"+data[1],
-      fileName:""
+      id: "task_id:" + data[1],
+      fileName: "",
     });
   };
 
@@ -120,7 +123,10 @@ class ToolPage extends React.Component {
     let token = getToken();
     let text = await GetVttFromId(token, this.state.taskId);
     if (text) this.handleLoadTranscriptFromServer(text);
-    else toast.error("Failed to load the file, please check your task id", { position: "bottom-center" });
+    else
+      toast.error("Failed to load the file, please check your task id", {
+        position: "bottom-center",
+      });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -129,6 +135,19 @@ class ToolPage extends React.Component {
     }*/
   }
 
+  componentDidMount() {
+    let parsed = qs.parse(window.location.href.toString().split("/?")[1]);
+    if (parsed.task_id && parsed.task_id != "") {
+      this.state = {
+        transcriptData: null,
+        mediaUrl: null,
+        id: null,
+        taskId: parsed.task_id,
+        fileName: "",
+      };
+      this.getVttFromId();
+    }
+  }
   render() {
     if (isAuth()) {
       return (
@@ -176,13 +195,9 @@ class ToolPage extends React.Component {
                 borderRadius: 10,
                 width: "30%",
                 padding: 20,
-                
               }}
             >
-              
-
-              
-              <div
+              {/*<div
                 style={{
                   display: "flex",
                   flexDirection: "row",
@@ -214,11 +229,11 @@ class ToolPage extends React.Component {
                   Submit
                 </button>
               </div>
-              <p style={{fontSize:25}}>OR</p>
+              <p style={{fontSize:25}}>OR</p>*/}
               <Button
                 variant="contained"
                 component="label"
-                style={{ margin: "10px",fontSize:10 }}
+                style={{ margin: "10px", fontSize: 13 }}
               >
                 Load Transcript (vtt)
                 <input
@@ -235,23 +250,32 @@ class ToolPage extends React.Component {
               </Button>
             </div>
 
-            {this.state.transcriptData &&
-              this.state.mediaUrl && (
-                <Redirect
-                  to={{
-                    pathname: "editor",
-                    state: {
-                      fileName:this.state.fileName,
-                      transcriptData: this.state.transcriptData,
-                      mediaUrl: this.state.mediaUrl,
-                      id: this.state.id,
-                      exportName: this.state.exportName,
-                      uploadTranscript: this.state.uploadTranscript,
-                    },
-                  }}
-                ></Redirect>
-              )}
-              <Toaster></Toaster>
+            {this.state.transcriptData && this.state.mediaUrl && (
+              <Redirect
+                to={{
+                  pathname: "editor",
+                  state: {
+                    fileName: this.state.fileName,
+                    transcriptData: this.state.transcriptData,
+                    mediaUrl: this.state.mediaUrl,
+                    id: this.state.id,
+                    exportName: this.state.exportName,
+                    uploadTranscript: this.state.uploadTranscript,
+                  },
+                }}
+              ></Redirect>
+            )}
+
+            <img
+              src={require("../images/background.png").default}
+              style={{
+                bottom: "0%",
+                backgroundColor: "rgba(0,0,0,0)",
+                width: "100%",
+                position: "absolute",
+              }}
+            ></img>
+            <Toaster></Toaster>
           </header>
         </div>
       );
