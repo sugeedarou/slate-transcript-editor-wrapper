@@ -4,7 +4,7 @@ import ToolPage from "./pages/ToolPage"
 import RegisterPage from "./pages/RegisterPage"
 import {BrowserRouter as Router,Route,Switch} from 'react-router-dom' 
 import SlateTranscriptEditorPage from "./pages/SlateTranscriptEditorPage";
-
+import ExternLoginPage from './pages/ExternLoginPage'
 function App() {
   return (
     <Router>
@@ -21,6 +21,9 @@ function App() {
           <Route exact path={"/register"}>
              <RegisterPage></RegisterPage>
           </Route>     
+          <Route exact path={"/router"}>
+             <ExternLoginPage></ExternLoginPage>
+          </Route> 
         </Switch>
     </Router>
   );
