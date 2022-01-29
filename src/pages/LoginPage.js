@@ -5,6 +5,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { Link, useHistory } from "react-router-dom";
 import { auth } from "../user/User";
 import toast, { Toaster } from 'react-hot-toast';
+import * as qs from 'query-string';
 
 function LoginPage() {
   const history = useHistory();
@@ -12,6 +13,8 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+
 
   const callLogin = async () => {
     setLoading(true);
@@ -98,13 +101,22 @@ function LoginPage() {
             borderRadius: 10,
             width: "30%",
             padding: 20,
+            paddingBottom:29
           }}
         >
-          <Link to="/register" style={{ color: "#ffffff", fontSize: 10 }}>
+          <Link to="/register" style={{ color: "#ffffff", fontSize: 12 }}>
             Do not have an account? register now!
           </Link>
         </div>
-        
+        <img
+              src={require("../images/background.png").default}
+              style={{
+                bottom: "0%",
+                backgroundColor: "rgba(0,0,0,0)",
+                width: "100%",
+                position: "absolute",
+              }}
+            ></img>
         <Toaster></Toaster>
       </header>
     </div>

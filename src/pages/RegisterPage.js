@@ -163,12 +163,22 @@ function RegisterPage() {
             borderRadius: 10,
             width: "30%",
             padding: 20,
+            paddingBottom:29
           }}
         >
-          <Link to="login" style={{ color: "#ffffff", fontSize: 10 }}>
+          <Link to="login" style={{ color: "#ffffff", fontSize: 12 }}>
             already have an account? login now!
           </Link>
         </div>
+        <img
+              src={require("../images/background.png").default}
+              style={{
+                bottom: "0%",
+                backgroundColor: "rgba(0,0,0,0)",
+                width: "100%",
+                position: "absolute",
+              }}
+            ></img>
         <Toaster></Toaster>
       </header>
     </div>
