@@ -1,3 +1,5 @@
+import { SERVER_URL } from "../constants.js";
+
 /**
  * log in api
  * returns the token if login succeed
@@ -16,7 +18,7 @@
        redirect: 'follow'
      };
      
-     response = await fetch("https://i13hpc29.ira.uka.de:443/auth/login/", requestOptions);
+     response = await fetch(SERVER_URL + "/auth/login/", requestOptions);
  
      if(response.status==200)
          return response.json()

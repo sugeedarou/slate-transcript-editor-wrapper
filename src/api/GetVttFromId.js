@@ -1,3 +1,5 @@
+import { SERVER_URL } from "../constants.js";
+
 export default async function GetVttFromId(token, id) {
   let response;
   var myHeaders = new Headers();
@@ -13,7 +15,7 @@ export default async function GetVttFromId(token, id) {
   };
 
   response = await fetch(
-    "https://i13hpc29.ira.uka.de:443/v1/getvtt/",
+    SERVER_URL + "/v1/getvtt/",
     requestOptions
   );
 

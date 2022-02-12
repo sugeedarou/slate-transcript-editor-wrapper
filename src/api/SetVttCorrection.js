@@ -1,4 +1,5 @@
 import { getToken } from "../user/User";
+import { SERVER_URL } from "../constants.js";
 
  export default async function SetVttCorrection(vtt_name,vtt_content)
  {
@@ -18,7 +19,7 @@ import { getToken } from "../user/User";
         redirect: 'follow'
       };
      
-     response = await fetch("https://i13hpc29.ira.uka.de:443/v1/setvttcorrection/", requestOptions);
+     response = await fetch(SERVER_URL + "/v1/setvttcorrection/", requestOptions);
  
      if(response.status==200)
          return true
