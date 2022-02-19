@@ -84,6 +84,8 @@ function SlateTranscriptEditor(props) {
   const [isContentModified, setIsContentIsModified] = useState(false);
   const [isContentSaved, setIsContentSaved] = useState(true);
 
+  const [editMode, setEditMode] = useState('normal');
+
   useEffect(() => {
     if (isProcessing) {
       document.body.style.cursor = 'wait';
@@ -162,6 +164,11 @@ function SlateTranscriptEditor(props) {
   //     }
   //   }
   // }, [mediaRef]);
+
+  const handleModeChange = async (mode) => {
+    console.log("mode changed to " + mode);
+    setEditMode(mode);
+  }
 
   const insertTextInaudible = () => {
     Transforms.insertText(editor, '[INAUDIBLE]');
@@ -261,15 +268,17 @@ function SlateTranscriptEditor(props) {
   };
 
   const renderElement = useCallback((props) => {
+    console.log(props);
     switch (props.element.type) {
       case 'timedText':
         return <TimedTextElement {...props} />;
       default:
         return <DefaultElement {...props} />;
     }
-  }, []);
+  }, [editMode]);
 
   const renderLeaf = useCallback(({ attributes, children, leaf }) => {
+    //console.log(children);
     return (
       <span
         onDoubleClick={handleTimedTextClick}
@@ -336,20 +345,43 @@ function SlateTranscriptEditor(props) {
   };
 
   const TimedTextElement = (props) => {
-    let textLg = 12;
-    let textXl = 12;
-    if (!showSpeakers && !showTimecodes) {
-      textLg = 12;
-      textXl = 12;
-    } else if (showSpeakers && !showTimecodes) {
-      textLg = 9;
-      textXl = 9;
-    } else if (!showSpeakers && showTimecodes) {
-      textLg = 9;
-      textXl = 10;
-    } else if (showSpeakers && showTimecodes) {
-      textLg = 6;
-      textXl = 7;
+    // let textLg = 12;
+    // let textXl = 12;
+    // if (!showSpeakers && !showTimecodes) {
+    //   textLg = 12;
+    //   textXl = 12;
+    // } else if (showSpeakers && !showTimecodes) {
+    //   textLg = 9;
+    //   textXl = 9;
+    // } else if (!showSpeakers && showTimecodes) {
+    //   textLg = 9;
+    //   textXl = 10;
+    // } else if (showSpeakers && showTimecodes) {
+    //   textLg = 6;
+    //   textXl = 7;
+    // }
+
+    // I added an index in the props. This will be useful for disable stuff.
+    const [isRecording, setIsRecording] = useState(false);
+    let textLg = 6;
+    let textXl = 7;
+
+    const [editable, setEditable] = useState(editMode === "normal" ? true : false);
+
+    const handleRec = () => {
+      if (isRecording) {
+        // TODO grab text
+        setEditable(true);
+      }
+      setIsRecording(!isRecording);
+    }
+
+    const handleDone = () => {
+      if (editable) {
+        setEditable(false);
+        // TODO grab text
+        // TODO send to backend
+      }
     }
 
     return (
@@ -391,8 +423,17 @@ function SlateTranscriptEditor(props) {
             </Typography>
           </Grid>
         )}
+        {(editMode === "commandclips") && (
+          <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3}>
+            <Button onClick={handleRec}>{isRecording ? "Stop" : "Rec"}</Button>
+            <Button>P</Button>
+            <Button onClick={handleDone}>D</Button>
+          </Grid>
+        )}
         <Grid item xs={12} sm={12} md={12} lg={textLg} xl={textXl} className={'p-b-1 mx-auto'}>
-          {props.children}
+          <div contentEditable={editable}>
+            {props.children}
+          </div>
         </Grid>
       </Grid>
     );
@@ -972,6 +1013,7 @@ function SlateTranscriptEditor(props) {
           <Grid container item xs={12} sm={1} md={1} lg={1} xl={1}>
             <SideBtns
               handleExport={handleExport}
+              handleModeChange={handleModeChange}
               isProcessing={isProcessing}
               isContentModified={isContentModified}
               isContentSaved={isContentSaved}

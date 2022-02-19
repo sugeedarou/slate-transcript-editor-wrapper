@@ -57,7 +57,8 @@ const convertDpeToSlate = (transcript) => {
 
   const { words, paragraphs } = transcript;
 
-  return paragraphs.map((paragraph) => ({
+  return paragraphs.map((paragraph, index) => ({
+    index: index,
     speaker: paragraph.speaker,
     start: paragraph.start,
     previousTimings: generatePreviousTimingsUpToCurrent(paragraph.start),
