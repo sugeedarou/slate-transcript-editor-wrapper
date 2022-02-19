@@ -49,6 +49,7 @@ import SlateHelpers from './slate-helpers';
 import SetVttCorrection from '../../../api/SetVttCorrection';
 import toast, { Toaster } from 'react-hot-toast';
 import { getTaskId } from '../../../user/User';
+import useRecorder from './useRecorder';
 
 const PLAYBACK_RATE_VALUES = [0.2, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5];
 const SEEK_BACK_SEC = 10;
@@ -85,6 +86,10 @@ function SlateTranscriptEditor(props) {
   const [isContentSaved, setIsContentSaved] = useState(true);
 
   const [editMode, setEditMode] = useState('normal');
+  let [audioURL, resetAudio, isRecording, startRecording, stopRecording] = useRecorder();
+  let [activePIndex, setActivePIndex] = useState(null);
+
+  let commandClip = {beforeText: '', afterText: '', audioFile: null};
 
   useEffect(() => {
     if (isProcessing) {
@@ -169,6 +174,8 @@ function SlateTranscriptEditor(props) {
     console.log("mode changed to " + mode);
     setEditMode(mode);
   }
+
+  
 
   const insertTextInaudible = () => {
     Transforms.insertText(editor, '[INAUDIBLE]');
@@ -275,7 +282,7 @@ function SlateTranscriptEditor(props) {
       default:
         return <DefaultElement {...props} />;
     }
-  }, [editMode]);
+  }, [editMode, audioURL, activePIndex]);
 
   const renderLeaf = useCallback(({ attributes, children, leaf }) => {
     //console.log(children);
@@ -362,26 +369,54 @@ function SlateTranscriptEditor(props) {
     // }
 
     // I added an index in the props. This will be useful for disable stuff.
-    const [isRecording, setIsRecording] = useState(false);
+    const index = props.element.index;
+    const [isRecordingTTE, setIsRecordingTTE] = useState(activePIndex === index && !audioURL);
     let textLg = 6;
     let textXl = 7;
 
-    const [editable, setEditable] = useState(editMode === "normal" ? true : false);
+    let editval;
+    if (editMode === "commandclips") {
+      if (audioURL && (index === activePIndex)) {
+        editval = true;
+      } else {
+        editval = false;
+      }
+    } else {
+      editval = true;
+    }
+    const [editable, setEditable] = useState(editval);
+    
 
     const handleRec = () => {
-      if (isRecording) {
+      if (isRecordingTTE) {
         // TODO grab text
-        setEditable(true);
+        setIsRecordingTTE(false);
+        // stopRecording must be last bc it triggers a rerender
+        stopRecording();
+      } else {
+        setIsRecordingTTE(true);
+        startRecording();
+        setActivePIndex(index);
+        
       }
-      setIsRecording(!isRecording);
     }
 
     const handleDone = () => {
       if (editable) {
-        setEditable(false);
+        //setEditable(false);
         // TODO grab text
         // TODO send to backend
+        setActivePIndex(null);
+        // resetAudio needs to be at the end, because it triggers a rerender of the element.
+        resetAudio();
       }
+    }
+
+    const playCommandClip = () => {
+      console.log("playing clip");
+      console.log(audioURL);
+      const a = new Audio(audioURL);
+      a.play();
     }
 
     return (
@@ -425,13 +460,19 @@ function SlateTranscriptEditor(props) {
         )}
         {(editMode === "commandclips") && (
           <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3}>
-            <Button onClick={handleRec}>{isRecording ? "Stop" : "Rec"}</Button>
-            <Button>P</Button>
-            <Button onClick={handleDone}>D</Button>
+            <Button onClick={handleRec} disabled={activePIndex != null && activePIndex !== index}>
+              {isRecordingTTE ? "Stop" : "Rec"}
+            </Button>
+            <Button onClick={playCommandClip} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+              P
+            </Button>
+            <Button onClick={handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+              D
+            </Button>
           </Grid>
         )}
         <Grid item xs={12} sm={12} md={12} lg={textLg} xl={textXl} className={'p-b-1 mx-auto'}>
-          <div contentEditable={editable}>
+          <div contentEditable={editable} style={{backgroundColor: editable ? 'white' : 'gray'}}>
             {props.children}
           </div>
         </Grid>
