@@ -4,6 +4,8 @@ import PropTypes, { string } from 'prop-types';
 import path from 'path';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Button from '@material-ui/core/Button';
+import IconButton from '@mui/material/IconButton';
+import {DoneOutline, Mic, PlayCircle, Stop} from '@mui/icons-material';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -405,6 +407,8 @@ function SlateTranscriptEditor(props) {
       if (editable) {
         //setEditable(false);
         // TODO grab text
+        // TODO grab audio with:
+        // let blob = await fetch(url).then(r => r.blob());
         // TODO send to backend
         setActivePIndex(null);
         // resetAudio needs to be at the end, because it triggers a rerender of the element.
@@ -420,6 +424,7 @@ function SlateTranscriptEditor(props) {
     }
 
     return (
+      <div>
       <Grid container direction="row" justifycontent="flex-start" alignItems="flex-start" {...props.attributes}>
         {showTimecodes && (
           <Grid item contentEditable={false} xs={4} sm={3} md={3} lg={2} xl={2} className={'p-t-2 text-truncate'}>
@@ -460,23 +465,25 @@ function SlateTranscriptEditor(props) {
         )}
         {(editMode === "commandclips") && (
           <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3}>
-            <Button onClick={handleRec} disabled={activePIndex != null && activePIndex !== index}>
-              {isRecordingTTE ? "Stop" : "Rec"}
-            </Button>
-            <Button onClick={playCommandClip} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
-              P
-            </Button>
-            <Button onClick={handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
-              D
-            </Button>
+            <IconButton onClick={handleRec} disabled={activePIndex != null && activePIndex !== index}>
+              {isRecordingTTE ? <Stop/> : <Mic/>}
+            </IconButton>
+            <IconButton onClick={playCommandClip} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+              <PlayCircle/>
+            </IconButton>
+            <IconButton onClick={handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+              <DoneOutline/>
+            </IconButton>
           </Grid>
         )}
         <Grid item xs={12} sm={12} md={12} lg={textLg} xl={textXl} className={'p-b-1 mx-auto'}>
-          <div contentEditable={editable} style={{backgroundColor: editable ? 'white' : 'gray'}}>
+          <div contentEditable={editable} style={{backgroundColor: editable ? 'white' : '#BBB'}}>
             {props.children}
           </div>
         </Grid>
       </Grid>
+      <hr/>
+      </div>
     );
   };
 
