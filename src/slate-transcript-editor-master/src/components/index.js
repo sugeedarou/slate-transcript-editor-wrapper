@@ -477,7 +477,7 @@ function SlateTranscriptEditor(props) {
           </Grid>
         )}
         <Grid item xs={12} sm={12} md={12} lg={textLg} xl={textXl} className={'p-b-1 mx-auto'}>
-          <div contentEditable={editable} style={{backgroundColor: editable ? 'white' : '#BBB'}}>
+          <div contentEditable={editable && !isRecordingTTE} style={{backgroundColor: (editable && !isRecordingTTE) ? 'white' : '#BBB'}}>
             {props.children}
           </div>
         </Grid>
