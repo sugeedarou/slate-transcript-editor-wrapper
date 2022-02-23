@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { DEMO } from '../constants';
 
 const USER_COOKIES_KEY = "token";
 const EMAIL_COOKIES_KEY = "email";
@@ -6,6 +7,9 @@ const TASK_ID_COOKIES_KEY = "t_id";
 
 export function isAuth()
 {
+    if (DEMO) {
+        return true;
+    }
    let cookie = Cookies.get(USER_COOKIES_KEY)
    if(cookie)
         return true

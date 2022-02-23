@@ -52,6 +52,9 @@ import SetVttCorrection from '../../../api/SetVttCorrection';
 import toast, { Toaster } from 'react-hot-toast';
 import { getTaskId } from '../../../user/User';
 import useRecorder from './useRecorder';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { DEMO } from '../../../constants';
 
 const PLAYBACK_RATE_VALUES = [0.2, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5];
 const SEEK_BACK_SEC = 10;
@@ -91,7 +94,7 @@ function SlateTranscriptEditor(props) {
   let [audioURL, resetAudio, isRecording, startRecording, stopRecording] = useRecorder();
   let [activePIndex, setActivePIndex] = useState(null);
 
-  let commandClip = {beforeText: '', afterText: '', audioFile: null};
+  let [beforeText, setBeforeText] = useState('');
 
   useEffect(() => {
     if (isProcessing) {
@@ -177,7 +180,11 @@ function SlateTranscriptEditor(props) {
     setEditMode(mode);
   }
 
-  
+  // const updateCommandClipData = (data) => {
+  //   data.forEach(attribute => {
+  //     commandClipData[attribute[0]] = attribute[1];
+  //   });
+  // }  
 
   const insertTextInaudible = () => {
     Transforms.insertText(editor, '[INAUDIBLE]');
@@ -277,7 +284,7 @@ function SlateTranscriptEditor(props) {
   };
 
   const renderElement = useCallback((props) => {
-    console.log(props);
+    //console.log(props);
     switch (props.element.type) {
       case 'timedText':
         return <TimedTextElement {...props} />;
@@ -391,7 +398,10 @@ function SlateTranscriptEditor(props) {
 
     const handleRec = () => {
       if (isRecordingTTE) {
-        // TODO grab text
+        // grab text
+        const bt = props.element.children[0].text;
+        setBeforeText(bt);
+
         setIsRecordingTTE(false);
         // stopRecording must be last bc it triggers a rerender
         stopRecording();
@@ -403,13 +413,28 @@ function SlateTranscriptEditor(props) {
       }
     }
 
-    const handleDone = () => {
+    const handleDone = async() => {
       if (editable) {
         //setEditable(false);
         // TODO grab text
+        const at = props.element.children[0].text;
+        if (at === beforeText) {
+          alert("you need to edit something!");
+          return;
+        }
         // TODO grab audio with:
-        // let blob = await fetch(url).then(r => r.blob());
+        let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
         // TODO send to backend
+        if (DEMO) {
+          let zip = new JSZip();
+          zip.file("data.json", JSON.stringify({'beforeText': beforeText, 'afterText': at}));
+          zip.file("commandClip.wav", blob);
+          zip.generateAsync({type:"blob"}).then(
+            function(content) {
+              saveAs(content, "data.zip");
+            }
+          );
+        }
         setActivePIndex(null);
         // resetAudio needs to be at the end, because it triggers a rerender of the element.
         resetAudio();
