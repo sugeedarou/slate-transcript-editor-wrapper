@@ -91,10 +91,12 @@ function SlateTranscriptEditor(props) {
   const [isContentSaved, setIsContentSaved] = useState(true);
 
   const [editMode, setEditMode] = useState('normal');
+  // BEGIN variables for commandclips mode
   let [audioURL, resetAudio, isRecording, startRecording, stopRecording] = useRecorder();
   let [activePIndex, setActivePIndex] = useState(null);
-
   let [beforeText, setBeforeText] = useState('');
+  let [finishedPIndices, setFinishedPIndices] = useState([]);
+  // END variables for commandclips
 
   useEffect(() => {
     if (isProcessing) {
@@ -285,9 +287,17 @@ function SlateTranscriptEditor(props) {
 
   const renderElement = useCallback((props) => {
     //console.log(props);
-    switch (props.element.type) {
-      case 'timedText':
+    // switch (props.element.type) {
+    //   case 'timedText':
+    //     return <TimedTextElement {...props} />;
+    //   default:
+    //     return <DefaultElement {...props} />;
+    // }
+    switch (editMode) {
+      case 'normal':
         return <TimedTextElement {...props} />;
+      case 'commandclips':
+        return <CommandClipsElement {...props} />;
       default:
         return <DefaultElement {...props} />;
     }
@@ -361,24 +371,94 @@ function SlateTranscriptEditor(props) {
   };
 
   const TimedTextElement = (props) => {
-    // let textLg = 12;
-    // let textXl = 12;
-    // if (!showSpeakers && !showTimecodes) {
-    //   textLg = 12;
-    //   textXl = 12;
-    // } else if (showSpeakers && !showTimecodes) {
-    //   textLg = 9;
-    //   textXl = 9;
-    // } else if (!showSpeakers && showTimecodes) {
-    //   textLg = 9;
-    //   textXl = 10;
-    // } else if (showSpeakers && showTimecodes) {
-    //   textLg = 6;
-    //   textXl = 7;
-    // }
+    let textLg = 12;
+    let textXl = 12;
+    if (!showSpeakers && !showTimecodes) {
+      textLg = 12;
+      textXl = 12;
+    } else if (showSpeakers && !showTimecodes) {
+      textLg = 9;
+      textXl = 9;
+    } else if (!showSpeakers && showTimecodes) {
+      textLg = 9;
+      textXl = 10;
+    } else if (showSpeakers && showTimecodes) {
+      textLg = 6;
+      textXl = 7;
+    }
 
     // I added an index in the props. This will be useful for disable stuff.
+    //const index = props.element.index;
+    //const [isRecordingTTE, setIsRecordingTTE] = useState(activePIndex === index && !audioURL);
+    //let textLg = 6;
+    //let textXl = 7;
+
+    // let editval;
+    // if (editMode === "commandclips") {
+    //   if (audioURL && (index === activePIndex)) {
+    //     editval = true;
+    //   } else {
+    //     editval = false;
+    //   }
+    // } else {
+    //   editval = true;
+    // }
+    // const [editable, setEditable] = useState(editval);
+
+    return (
+      <div>
+      <Grid container direction="row" justifycontent="flex-start" alignItems="flex-start" {...props.attributes}>
+        {showTimecodes && (
+          <Grid item contentEditable={false} xs={4} sm={3} md={3} lg={2} xl={2} className={'p-t-2 text-truncate'}>
+            <code
+              contentEditable={false}
+              style={{ cursor: 'pointer' }}
+              className={'timecode text-muted unselectable'}
+              onClick={handleTimedTextClick}
+              // onClick={(e) => {
+              //   e.preventDefault();
+              // }}
+              onDoubleClick={handleTimedTextClick}
+              title={props.element.startTimecode}
+              data-start={props.element.start}
+            >
+              {props.element.startTimecode}
+            </code>
+          </Grid>
+        )}
+        {showSpeakers && (
+          <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3} className={'p-t-2 text-truncate'}>
+            <Typography
+              noWrap
+              contentEditable={false}
+              className={'text-truncate text-muted unselectable'}
+              style={{
+                cursor: 'pointer',
+                width: '100%',
+                textTransform: 'uppercase',
+              }}
+              // title={props.element.speaker.toUpperCase()}
+              title={props.element.speaker}
+              onClick={handleSetSpeakerName.bind(this, props.element)}
+            >
+              {props.element.speaker}
+            </Typography>
+          </Grid>
+        )}
+        <Grid item xs={12} sm={12} md={12} lg={textLg} xl={textXl} className={'p-b-1 mx-auto'}>
+            {props.children}
+        </Grid>
+      </Grid>
+      <hr/>
+      </div>
+    );
+  };
+
+  const CommandClipsElement = (props) => {
+
+    // I added an index in the props. This will be useful to disable stuff.
     const index = props.element.index;
+    const done = finishedPIndices.includes(index);
     const [isRecordingTTE, setIsRecordingTTE] = useState(activePIndex === index && !audioURL);
     let textLg = 6;
     let textXl = 7;
@@ -435,6 +515,8 @@ function SlateTranscriptEditor(props) {
             }
           );
         }
+        finishedPIndices.push(index);
+        setFinishedPIndices(finishedPIndices);
         setActivePIndex(null);
         // resetAudio needs to be at the end, because it triggers a rerender of the element.
         resetAudio();
@@ -442,8 +524,6 @@ function SlateTranscriptEditor(props) {
     }
 
     const playCommandClip = () => {
-      console.log("playing clip");
-      console.log(audioURL);
       const a = new Audio(audioURL);
       a.play();
     }
@@ -469,38 +549,19 @@ function SlateTranscriptEditor(props) {
             </code>
           </Grid>
         )}
-        {showSpeakers && (
-          <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3} className={'p-t-2 text-truncate'}>
-            <Typography
-              noWrap
-              contentEditable={false}
-              className={'text-truncate text-muted unselectable'}
-              style={{
-                cursor: 'pointer',
-                width: '100%',
-                textTransform: 'uppercase',
-              }}
-              // title={props.element.speaker.toUpperCase()}
-              title={props.element.speaker}
-              onClick={handleSetSpeakerName.bind(this, props.element)}
-            >
-              {props.element.speaker}
-            </Typography>
-          </Grid>
-        )}
-        {(editMode === "commandclips") && (
-          <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3}>
-            <IconButton onClick={handleRec} disabled={activePIndex != null && activePIndex !== index}>
-              {isRecordingTTE ? <Stop/> : <Mic/>}
-            </IconButton>
-            <IconButton onClick={playCommandClip} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
-              <PlayCircle/>
-            </IconButton>
-            <IconButton onClick={handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
-              <DoneOutline/>
-            </IconButton>
-          </Grid>
-        )}
+        <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3}>
+          <div style={{display: 'inline-block', backgroundColor: done ? '#9E9' : '#FFF'}}>
+          <IconButton onClick={handleRec} disabled={activePIndex != null && activePIndex !== index}>
+            {isRecordingTTE ? <Stop/> : <Mic/>}
+          </IconButton>
+          <IconButton onClick={playCommandClip} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+            <PlayCircle/>
+          </IconButton>
+          <IconButton onClick={handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+            <DoneOutline/>
+          </IconButton>
+          </div>
+        </Grid>
         <Grid item xs={12} sm={12} md={12} lg={textLg} xl={textXl} className={'p-b-1 mx-auto'}>
           <div contentEditable={editable && !isRecordingTTE} style={{backgroundColor: (editable && !isRecordingTTE) ? 'white' : '#BBB'}}>
             {props.children}
