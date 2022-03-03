@@ -55,6 +55,7 @@ import useRecorder from './useRecorder';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { DEMO } from '../../../constants';
+import localforage from 'localforage';
 
 const PLAYBACK_RATE_VALUES = [0.2, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5];
 const SEEK_BACK_SEC = 10;
@@ -180,6 +181,9 @@ function SlateTranscriptEditor(props) {
   const handleModeChange = async (mode) => {
     console.log("mode changed to " + mode);
     setEditMode(mode);
+    if (mode === "commandclips") {
+      localforage.clear();
+    }
   }
 
   // const updateCommandClipData = (data) => {
@@ -505,16 +509,18 @@ function SlateTranscriptEditor(props) {
         // TODO grab audio with:
         let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
         // TODO send to backend
-        if (DEMO) {
-          let zip = new JSZip();
-          zip.file("data.json", JSON.stringify({'beforeText': beforeText, 'afterText': at}));
-          zip.file("commandClip.wav", blob);
-          zip.generateAsync({type:"blob"}).then(
-            function(content) {
-              saveAs(content, "data.zip");
-            }
-          );
-        }
+        // if (DEMO) {
+        //   let zip = new JSZip();
+        //   zip.file("data.json", JSON.stringify({'beforeText': beforeText, 'afterText': at}));
+        //   zip.file("commandClip.wav", blob);
+        //   zip.generateAsync({type:"blob"}).then(
+        //     function(content) {
+        //       saveAs(content, "data.zip");
+        //     }
+        //   );
+        // }
+        localforage.setItem(parseInt(index) + 'data', {'beforeText': beforeText, 'afterText': at});
+        localforage.setItem(parseInt(index) + 'commandclip', blob);
         finishedPIndices.push(index);
         setFinishedPIndices(finishedPIndices);
         setActivePIndex(null);
@@ -551,7 +557,7 @@ function SlateTranscriptEditor(props) {
         )}
         <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3}>
           <div style={{display: 'inline-block', backgroundColor: done ? '#9E9' : '#FFF'}}>
-          <IconButton onClick={handleRec} disabled={activePIndex != null && activePIndex !== index}>
+          <IconButton onClick={handleRec} disabled={(activePIndex != null && activePIndex !== index) || done}>
             {isRecordingTTE ? <Stop/> : <Mic/>}
           </IconButton>
           <IconButton onClick={playCommandClip} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
@@ -576,6 +582,25 @@ function SlateTranscriptEditor(props) {
   const DefaultElement = (props) => {
     return <p {...props.attributes}>{props.children}</p>;
   };
+
+  const handleCommandClipsDownload = async () => {
+    console.log("generating zip");
+    let zip = new JSZip();
+    for (const i of finishedPIndices) {
+      const dataKey = parseInt(i) + 'data';
+      const ccKey = parseInt(i) + 'commandclip';
+      const data = await localforage.getItem(dataKey);
+      const audio = await localforage.getItem(ccKey);
+      zip.file(dataKey + ".json", JSON.stringify(data));
+      zip.file(ccKey + ".wav", audio);
+    }
+    
+    zip.generateAsync({type:"blob"}).then(
+      function(content) {
+        saveAs(content, "data.zip");
+      }
+    );
+  }
 
   const handleTimedTextClick = (e) => {
     if (e.target.classList.contains('timecode')) {
@@ -1162,10 +1187,12 @@ function SlateTranscriptEditor(props) {
               handleSave={handleSave}
               REPLACE_WHOLE_TEXT_INSTRUCTION={REPLACE_WHOLE_TEXT_INSTRUCTION}
               handleAnalyticsEvents={props.handleAnalyticsEvents}
+              handleCommandClipsDownload={handleCommandClipsDownload}
               optionalBtns={props.optionalBtns}
               handleUndo={handleUndo}
               handleRedo={handleRedo}
               isEditable={props.isEditable}
+              editMode={editMode}
             />
           </Grid>
         </Grid>

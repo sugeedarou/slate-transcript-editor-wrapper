@@ -36,11 +36,13 @@ function SideBtns({
   handleReplaceText,
   handleSave,
   handleAnalyticsEvents,
+  handleCommandClipsDownload,
   REPLACE_WHOLE_TEXT_INSTRUCTION,
   optionalBtns,
   handleUndo,
   handleRedo,
   isEditable,
+  editMode,
 }) {
   const [anchorMenuEl, setAnchorMenuEl] = useState(null);
   const [anchorModeMenuEl, setAnchorModeMenuEl] = useState(null);
@@ -130,6 +132,11 @@ function SideBtns({
         <Grid item>
           <br />
         </Grid>
+        {editMode === "commandclips" && <Tooltip title={<Typography variant="body1">CommandClips Download</Typography>}>
+            <Button onClick={handleCommandClipsDownload} color="primary">
+              CC<SaveOutlinedIcon color='primary'/>
+            </Button>
+          </Tooltip>}
         {isEditable && (
           <Tooltip title={<Typography variant="body1">Submit Task</Typography>}>
             <Button disabled={isProcessing} onClick={handleSave} color="primary">
