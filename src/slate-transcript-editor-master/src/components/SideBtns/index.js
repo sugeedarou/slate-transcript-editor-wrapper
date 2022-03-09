@@ -47,7 +47,7 @@ function SideBtns({
   const [anchorMenuEl, setAnchorMenuEl] = useState(null);
   const [anchorModeMenuEl, setAnchorModeMenuEl] = useState(null);
 
-  const modes = [{name: "normal", id: 1}, {name: "commandclips", id: 2}];
+  const modes = [{name: "normal", id: 1}, {name: "commandclips", id: 2}, {name: "classification", id: 3}];
 
   // used by Mode menu
   const handleModeMenuClose = () => {
