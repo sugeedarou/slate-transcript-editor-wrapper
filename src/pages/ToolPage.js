@@ -10,6 +10,7 @@ import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
 import toast, { Toaster } from "react-hot-toast";
 import * as qs from "query-string";
+import GetVttCorrectionFromId from "../api/GetVttCorrectionFromId";
 
 class ToolPage extends React.Component {
   SERVER_URL = "";
@@ -118,7 +119,15 @@ class ToolPage extends React.Component {
 
   async getVttFromId() {
     let token = getToken();
-    let text = await GetVttFromId(token, this.state.taskId);
+    let text = await GetVttCorrectionFromId(this.state.taskId);
+    if (text) {
+      if (!window.confirm("Load your last uploaded correction?")) {
+        text = await GetVttFromId(token, this.state.taskId);
+      }
+    }
+    else{
+      text = await GetVttFromId(token, this.state.taskId);
+    }
     if (text) this.handleLoadTranscriptFromServer(text);
     else
       toast.error("Failed to load the file, please check your task id", {
