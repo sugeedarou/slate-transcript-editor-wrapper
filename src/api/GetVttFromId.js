@@ -19,7 +19,8 @@ export default async function GetVttFromId(token, id) {
 
   if (response.status == 200) {
     let x = await response.json();
-    return x.vtt;
+    if(x.vtt)
+      return x.vtt;
   }
 
   return false;
