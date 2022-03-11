@@ -12,8 +12,11 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import Link from '@material-ui/core/Link';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 import Replay10Icon from '@material-ui/icons/Replay10';
 import Forward10Icon from '@material-ui/icons/Forward10';
 import Collapse from '@material-ui/core/Collapse';
@@ -92,6 +95,9 @@ function SlateTranscriptEditor(props) {
   const [isContentSaved, setIsContentSaved] = useState(true);
 
   const [editMode, setEditMode] = useState('normal');
+
+  const [classificationMap, setClassificationMap] = useState(undefined);
+
   // BEGIN variables for commandclips mode
   let [audioURL, resetAudio, isRecording, startRecording, stopRecording] = useRecorder();
   let [activePIndex, setActivePIndex] = useState(null);
@@ -181,8 +187,16 @@ function SlateTranscriptEditor(props) {
   const handleModeChange = async (mode) => {
     console.log("mode changed to " + mode);
     setEditMode(mode);
-    if (mode === "commandclips") {
-      localforage.clear();
+
+    switch (mode) {
+      case 'commandclips':
+        localforage.clear();
+        break;
+      case 'classification':
+        setClassificationMap(new Map());
+        break;
+      default:
+        setClassificationMap();
     }
   }
 
@@ -302,10 +316,37 @@ function SlateTranscriptEditor(props) {
         return <TimedTextElement {...props} />;
       case 'commandclips':
         return <CommandClipsElement {...props} />;
+      case 'classification':
+        return <TimedTextElement {...props} />;
       default:
         return <DefaultElement {...props} />;
     }
   }, [editMode, audioURL, activePIndex]);
+
+  const handleClassificationRadioButtonChange = (event) => {
+    const key = event.target.name.split('_')[1];
+    const value = event.target.value;
+    classificationMap.set(key, value);
+  };
+
+  const ClassificationRadioGroup = (props) => {
+    const classes = props.value.split(';');
+
+    return (
+      <FormControl>
+        <RadioGroup
+          row
+          aria-labelledby={'classification_' + props.index}
+          name={'classification_' + props.index}
+          onChange={handleClassificationRadioButtonChange}
+        >
+          {classes.map((object, i) =>
+            <FormControlLabel value={object} control={<Radio />} label={object} />)
+          }
+        </RadioGroup>
+      </FormControl>
+    );
+  }
 
   const renderLeaf = useCallback(({ attributes, children, leaf }) => {
     //console.log(children);
@@ -318,10 +359,15 @@ function SlateTranscriptEditor(props) {
         // title={'double click on a word to jump to the corresponding point in the media'}
         {...attributes}
       >
-        {children}
+        {editMode === 'classification'
+          ? <i contentEditable={false}>
+              <ClassificationRadioGroup index={children.props.parent.index} value={children.props.text.text} />
+            </i>
+          : children
+        }
       </span>
     );
-  }, []);
+  }, [editMode]);
 
   //
 
@@ -743,6 +789,7 @@ function SlateTranscriptEditor(props) {
         inlineTimecodes,
         hideTitle,
         atlasFormat,
+        classificationMap,
       });
 
       if (ext=== 'vtt'){

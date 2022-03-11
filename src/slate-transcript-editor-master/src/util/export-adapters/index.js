@@ -22,7 +22,8 @@ export const isCaptionType = (type) => {
   const res = captionTypeList.includes(type);
   return res;
 };
-const exportAdapter = ({ slateValue, type, ext, transcriptTitle, speakers, timecodes, inlineTimecodes, hideTitle, atlasFormat }) => {
+const exportAdapter = ({ slateValue, type, ext, transcriptTitle, speakers, timecodes, inlineTimecodes,
+                         hideTitle, atlasFormat, classificationMap = undefined }) => {
   switch (type) {
     case 'text':
       return slateToText({ value: slateValue, speakers, timecodes, atlasFormat });
@@ -44,7 +45,8 @@ const exportAdapter = ({ slateValue, type, ext, transcriptTitle, speakers, timec
       return slateToVtt({
         value: slateValue,
         speakers,
-        timecodes: true
+        timecodes: true,
+        classificationMap: classificationMap
       });
     case 'vtt_speakers':
     case 'vtt_speakers_paragraphs':

@@ -47,17 +47,29 @@ const slateToVtt = ({
   value,
   speakers,
   timecodes,
-  atlasFormat
+  atlasFormat,
+  classificationMap
 }) => {
-  return value // Return the string content of each paragraph in the value's children.
-  .map(n => {
+  // Return the string content of each paragraph in the value's children or
+  // the classification map value of the paragraph (if classificationMap is not undefined)
+  return value
+  .map((n, index) => {
       let end_TimeCode
       let end_sec
-      let text = Node.string(n)
-      if(text===""||text===" ")
-      {
-        text = "empty"
+      let text
+
+      if(classificationMap===undefined){
+        text = Node.string(n)
+        if(text===""||text===" "){
+          text = "empty"
+        }
+      }else{
+        text = classificationMap.get(index.toString())
+        if(text===undefined){
+          text = "empty"
+        }
       }
+
       if(n.children[0].text===""){
         end_TimeCode = n.startTimecode
         end_sec = JSON.stringify((parseFloat(n.start)+0.01))
