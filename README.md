@@ -2,15 +2,15 @@
 
 A `constants.js` file in the `src` folder is required. It is gitingored and should contain the following local settings:
 - SERVER_URL: The URL of the backend server
-- DEMO: If `true` it bypasses the login and need for a backend server and directly gives the user access to the editor. In commandClips mode data that would be sent to the backend is provided as a download.
+- OFFLINE: If `true` it bypasses the login and need for a backend server and directly gives the user access to the editor. In commandClips mode data that would be sent to the backend is provided as a download.
 
 Example for `src/constants.js`:
 ```javascript
 var SERVER_URL = "http://127.0.0.1:8000";
-var DEMO = true;
+var OFFLINE = true;
 
 export { SERVER_URL };
-export { DEMO };
+export { OFFLINE };
 ```
 
 ## Local Development Setup

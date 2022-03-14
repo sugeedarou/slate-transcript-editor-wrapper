@@ -52,12 +52,13 @@ import exportAdapter, { isCaptionType } from '../util/export-adapters';
 import generatePreviousTimingsUpToCurrent from '../util/dpe-to-slate/generate-previous-timings-up-to-current';
 import SlateHelpers from './slate-helpers';
 import SetVttCorrection from '../../../api/SetVttCorrection';
+import setCommandClip from '../../../api/SetCommandClip';
 import toast, { Toaster } from 'react-hot-toast';
 import { getTaskId } from '../../../user/User';
 import useRecorder from './useRecorder';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { DEMO } from '../../../constants';
+import { OFFLINE } from '../../../constants';
 import localforage from 'localforage';
 
 const PLAYBACK_RATE_VALUES = [0.2, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5];
@@ -555,7 +556,7 @@ function SlateTranscriptEditor(props) {
         // TODO grab audio with:
         let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
         // TODO send to backend
-        // if (DEMO) {
+        // if (OFFLINE) {
         //   let zip = new JSZip();
         //   zip.file("data.json", JSON.stringify({'beforeText': beforeText, 'afterText': at}));
         //   zip.file("commandClip.wav", blob);
@@ -567,6 +568,45 @@ function SlateTranscriptEditor(props) {
         // }
         localforage.setItem(parseInt(index) + 'data', {'beforeText': beforeText, 'afterText': at});
         localforage.setItem(parseInt(index) + 'commandclip', blob);
+        // send to backend
+        if (!OFFLINE) {
+          const taskId = getTaskId();
+          const beginText = props.element.start;
+          const numWords = props.element.children[0].words.length;
+          const endText = props.element.children[0].words[numWords - 1].end;
+          let prevContext = "";
+          let beginContext = beginText;
+          if (index > 0) {
+            prevContext = value[index - 1].children[0].text;
+            beginContext = value[index - 1].start;
+          }
+          let succContext = "";
+          let endContext = endText;
+          if (index < value.length - 1) {
+            succContext = value[index + 1].children[0].text;
+            const succContextNumWords = value[index + 1].children[0].words.length;
+            endContext = value[index + 1].children[0].words[succContextNumWords - 1].end;
+          }
+          const resp = setCommandClip(
+            beforeText,
+            at,
+            prevContext,
+            succContext,
+            blob,
+            beginContext,
+            beginText,
+            endText,
+            endContext,
+            taskId
+          )
+          console.log("lets look at the response");
+          console.log(resp);
+
+          //  if bad request: alert();
+          if (!resp) {
+            alert("something went wrong!");
+          }
+        }
         finishedPIndices.push(index);
         setFinishedPIndices(finishedPIndices);
         setActivePIndex(null);
