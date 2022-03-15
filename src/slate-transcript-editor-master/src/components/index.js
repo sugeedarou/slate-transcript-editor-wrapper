@@ -327,7 +327,7 @@ function SlateTranscriptEditor(props) {
   const handleClassificationRadioButtonChange = (event) => {
     const key = event.target.name.split('_')[1];
     const value = event.target.value;
-    classificationMap.set(key, value);
+    setClassificationMap(new Map(classificationMap.set(key, value)));
   };
 
   const ClassificationRadioGroup = (props) => {
