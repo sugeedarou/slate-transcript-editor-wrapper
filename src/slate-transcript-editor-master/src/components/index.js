@@ -671,16 +671,18 @@ function SlateTranscriptEditor(props) {
 
   const handleCommandClipsDownload = async () => {
     console.log("generating zip");
+    const texts = new Array();
     let zip = new JSZip();
     for (const i of finishedPIndices) {
       const dataKey = parseInt(i) + 'data';
       const ccKey = parseInt(i) + 'commandclip';
       const data = await localforage.getItem(dataKey);
       const audio = await localforage.getItem(ccKey);
-      zip.file(dataKey + ".json", JSON.stringify(data));
+      texts.push({"id": i, "afterText": data["afterText"]});
       zip.file(ccKey + ".wav", audio);
     }
 
+    zip.file("data.json", JSON.stringify(texts));
     zip.generateAsync({type:"blob"}).then(
       function(content) {
         saveAs(content, "data.zip");
