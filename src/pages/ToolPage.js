@@ -1,6 +1,9 @@
 import React from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Redirect } from "react-router-dom";
+import JSZip from "jszip";
+import JSZipUtils from "jszip-utils";
+import localforage from "localforage";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Button from "@mui/material/Button";
 import * as qs from "query-string";
@@ -10,6 +13,7 @@ import vttToDraft from "../import-adapter/vtt";
 import { getToken, isAuth, setTaskId } from "../user/User";
 import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
+import { ONE_FILE_MODE, DEFAULT_MODE } from "../constants.js";
 
 
 class ToolPage extends React.Component {
@@ -24,12 +28,29 @@ class ToolPage extends React.Component {
       id: null,
       taskId: "",
       fileName: "",
+      mode: "",
+      processing: false,
+      errorReadingFile: false,
     };
   }
 
   // https://stackoverflow.com/questions/8885701/play-local-hard-drive-video-file-with-html5-video-tag
   handleLoadMedia = (files) => {
     const file = files[0];
+
+    if (file.type !== "application/zip") {
+      this.processMediaFile(file);
+    } else {
+      this.setState({
+        processing: true,
+        exportName: file.name.split('.').slice(0, -1).join('.'),
+      });
+      const fileURL = URL.createObjectURL(file);
+      this.processZip(fileURL)
+    }
+  };
+
+  processMediaFile = (file) => {
     const videoNode = document.createElement("video");
     const canPlay = videoNode.canPlayType(file.type);
 
@@ -39,10 +60,85 @@ class ToolPage extends React.Component {
         // transcriptData: DEMO_TRANSCRIPT,
         mediaUrl: fileURL,
         fileName: file.name,
+        mode: DEFAULT_MODE,
       });
     } else {
       alert("Select a valid audio or video file.");
     }
+  }
+
+  processZip = (fileURL) => {
+    let includesWaveFiles = false;
+    let includesMediaFile = false;
+    let includesTranscriptFile = false;
+    let transcriptData, id, fileName, mediaURL, exportName;
+
+
+    JSZipUtils.getBinaryContent(fileURL, async (err, data) => {
+      localforage.clear();
+      const zipFile = await JSZip.loadAsync(data);
+
+      for (const file in zipFile.files) {
+        const fileSplittedOnDot = file.split(".");
+        const fileExtension = fileSplittedOnDot.at(-1);
+
+        if (fileExtension === "json") {
+          const jsonString = await zipFile.files[file].async("string");
+          const commandClipsJson = JSON.parse(jsonString);
+          for (const commandClipJson of commandClipsJson) {
+            localforage.setItem(commandClipJson["id"] + "data", {"afterText": commandClipJson["afterText"]});
+          }
+        } else if (fileExtension === "wav") {
+          includesWaveFiles = true;
+          const audioBlob = await zipFile.files[file].async("blob");
+          localforage.setItem(fileSplittedOnDot[0], audioBlob);
+        } else if (fileExtension === "vtt") {
+          includesTranscriptFile = true;
+          const vttFile = await zipFile.files[file].async("string");
+          const data = vttToDraft(vttFile);
+          setTaskId(data[1]);
+          transcriptData = data[0];
+          id = "task_id:" + data[1];
+          fileName = zipFile.files[file].name;
+        } else {
+          const videoNode = document.createElement("video");
+          const canPlayAudio = videoNode.canPlayType("audio/" + fileExtension);
+          const canPlayVideo = videoNode.canPlayType("video/" + fileExtension);
+
+          if (canPlayAudio || canPlayVideo) {
+            includesMediaFile = true;
+            const mediaBlob = await zipFile.files[file].async("blob");
+            const fileURL = URL.createObjectURL(mediaBlob);
+            mediaURL = fileURL;
+            fileName = zipFile.files[file].name;
+          }
+        }
+      }
+
+      if (!includesTranscriptFile || (!includesWaveFiles && !includesMediaFile)) {
+        this.setState({
+          processing: false,
+          errorReadingFile: true,
+        });
+      } else if (includesWaveFiles) {
+        this.setState({
+          transcriptData: transcriptData,
+          mediaUrl: includesMediaFile ? mediaURL : "no media",
+          id: id,
+          mode: ["commandclips", "commandclips2"].includes(DEFAULT_MODE) ? "commandclipsCheck" : DEFAULT_MODE,
+          processing: false,
+        });
+      } else {
+        this.setState({
+          transcriptData: transcriptData,
+          mediaUrl: mediaURL,
+          id: id,
+          mode: DEFAULT_MODE,
+          processing: false,
+        });
+      }
+
+    });
   };
 
   handleLoadMediaUrl = () => {
@@ -69,6 +165,7 @@ class ToolPage extends React.Component {
         transcriptData: data[0],
         id: "task_id:" + data[1],
         fileName: event.target.fileName,
+        mode: DEFAULT_MODE,
       });
     };
     fileReader.readAsText(file);
@@ -172,7 +269,7 @@ class ToolPage extends React.Component {
                   component="label"
                   style={{ margin: "10px", marginRight: "0" }}
                 >
-                  Load Media File
+                  {ONE_FILE_MODE ? "Load Task" : "Load Media File"}
                   <input
                     hidden
                     type={"file"}
@@ -228,24 +325,28 @@ class ToolPage extends React.Component {
                 </button>
               </div>
               <p style={{fontSize:25}}>OR</p>*/}
-              <Button
-                variant="contained"
-                component="label"
-                style={{ margin: "10px", fontSize: 13 }}
-              >
-                Load Transcript (vtt)
-                <input
-                  hidden
-                  type={"file"}
-                  id={"transcriptFile"}
-                  onChange={(e) =>
-                    this.handleLoadTranscriptJson(e.target.files)
-                  }
-                />
-                {this.state.transcriptData && this.state.id && (
-                  <CheckCircleIcon style={{ marginLeft: "10px" }} />
-                )}
-              </Button>
+              {this.state.errorReadingFile && "Problems reading file, please load another file."}
+              {this.state.processing && "Loading... This can take some time. Please be patient."}
+              {!ONE_FILE_MODE &&
+                <Button
+                  variant="contained"
+                  component="label"
+                  style={{ margin: "10px", fontSize: 13 }}
+                >
+                  Load Transcript (vtt)
+                  <input
+                    hidden
+                    type={"file"}
+                    id={"transcriptFile"}
+                    onChange={(e) =>
+                      this.handleLoadTranscriptJson(e.target.files)
+                    }
+                  />
+                  {this.state.transcriptData && this.state.id && (
+                    <CheckCircleIcon style={{ marginLeft: "10px" }} />
+                  )}
+                </Button>
+              }
             </div>
 
             {this.state.transcriptData && this.state.mediaUrl && (
@@ -259,6 +360,7 @@ class ToolPage extends React.Component {
                     id: this.state.id,
                     exportName: this.state.exportName,
                     uploadTranscript: this.state.uploadTranscript,
+                    mode: this.state.mode,
                   },
                 }}
               ></Redirect>
