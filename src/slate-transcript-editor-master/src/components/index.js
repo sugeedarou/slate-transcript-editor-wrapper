@@ -205,7 +205,7 @@ function SlateTranscriptEditor(props) {
   //   data.forEach(attribute => {
   //     commandClipData[attribute[0]] = attribute[1];
   //   });
-  // }  
+  // }
 
   const insertTextInaudible = () => {
     Transforms.insertText(editor, '[INAUDIBLE]');
@@ -525,7 +525,7 @@ function SlateTranscriptEditor(props) {
       editval = true;
     }
     const [editable, setEditable] = useState(editval);
-    
+
 
     const handleRec = () => {
       if (isRecordingTTE) {
@@ -540,7 +540,7 @@ function SlateTranscriptEditor(props) {
         setIsRecordingTTE(true);
         startRecording();
         setActivePIndex(index);
-        
+
       }
     }
 
@@ -680,7 +680,7 @@ function SlateTranscriptEditor(props) {
       zip.file(dataKey + ".json", JSON.stringify(data));
       zip.file(ccKey + ".wav", audio);
     }
-    
+
     zip.generateAsync({type:"blob"}).then(
       function(content) {
         saveAs(content, "data.zip");

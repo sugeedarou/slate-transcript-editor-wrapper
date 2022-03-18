@@ -198,7 +198,7 @@ class ToolPage extends React.Component {
                 style={{
                   display: "flex",
                   flexDirection: "row",
-                 
+
                 }}
               >
                 <input
