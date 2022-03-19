@@ -21,6 +21,7 @@ import RedoIcon from '@material-ui/icons/Redo';
 import UndoOutlinedIcon from '@material-ui/icons/UndoOutlined';
 import EmojiSymbolsOutlinedIcon from '@material-ui/icons/EmojiSymbolsOutlined';
 import subtitlesExportOptionsList from '../../util/export-adapters/subtitles-generator/list.js';
+import { MODE_MENU } from "../../../../constants.js";
 
 function SideBtns({
   handleExport,
@@ -47,7 +48,7 @@ function SideBtns({
   const [anchorMenuEl, setAnchorMenuEl] = useState(null);
   const [anchorModeMenuEl, setAnchorModeMenuEl] = useState(null);
 
-  const modes = [{name: "normal", id: 1}, {name: "commandclips", id: 2}, {name: "classification", id: 3}];
+  const modes = [{name: "normal", id: 1}, {name: "commandclips", id: 2}, {name: "classification", id: 3}, {name: "commandclips2", id: 4}];
 
   // used by Mode menu
   const handleModeMenuClose = () => {
@@ -72,13 +73,14 @@ function SideBtns({
   return (
     <Grid container direction="column" justifycontent="flex-start" alignItems="stretch">
       <Grid item>
-        <Tooltip title={<Typography variant="body1">Mode</Typography>}>
-          <Button aria-controls="mode-menu" aria-haspopup="true" onClick={handleModeMenuClick}>
-            Mode <KeyboardArrowDownIcon color="primary" />
-          </Button>
-        </Tooltip>
+        {MODE_MENU &&
+          <Tooltip title={<Typography variant="body1">Mode</Typography>}>
+            <Button aria-controls="mode-menu" aria-haspopup="true" onClick={handleModeMenuClick}>
+              Mode <KeyboardArrowDownIcon color="primary" />
+            </Button>
+          </Tooltip>
+        }
         <Menu id="mode-menu" anchorEl={anchorModeMenuEl} keepMounted open={Boolean(anchorModeMenuEl)} onClose={handleModeMenuClose}>
-
           <MenuItem onClick={handleModeMenuClose} disabled>
             <Link style={{ color: 'black' }}>Select Mode</Link>
           </MenuItem>
@@ -102,12 +104,14 @@ function SideBtns({
         <Grid item>
           <br />
         </Grid>
-        <Tooltip title={<Typography variant="body1">Download</Typography>}>
-          <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleMenuClick}>
-            <SaveAltIcon color="primary" /> <KeyboardArrowDownIcon color="primary" />
-          </Button>
-        </Tooltip>
-        <Menu id="simple-menu" anchorEl={anchorMenuEl} keepMounted open={Boolean(anchorMenuEl)} onClose={handleMenuClose}>
+        {editMode !== 'commandclips2' &&
+          <Tooltip title={<Typography variant="body1">Download</Typography> }>
+            <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleMenuClick}>
+              <SaveAltIcon color="primary" /> <KeyboardArrowDownIcon color="primary" />
+            </Button>
+          </Tooltip>
+        }
+        <Menu id="simple-menu" anchorEl={anchorMenuEl} keepMounted open={Boolean(anchorMenuEl) && editMode !== 'commandclips2'} onClose={handleMenuClose}>
 
           <MenuItem onClick={handleMenuClose} disabled>
             <Link style={{ color: 'black' }}>Closed Captions Export</Link>
@@ -132,18 +136,20 @@ function SideBtns({
         <Grid item>
           <br />
         </Grid>
-        {editMode === "commandclips" && <Tooltip title={<Typography variant="body1">CommandClips Download</Typography>}>
+        {['commandclips', 'commandclips2'].includes(editMode) &&
+          <Tooltip title={<Typography variant="body1">CommandClips Download</Typography>}>
             <Button onClick={handleCommandClipsDownload} color="primary">
               CC<SaveOutlinedIcon color='primary'/>
             </Button>
-          </Tooltip>}
-        {isEditable && (
+          </Tooltip>
+        }
+        {isEditable &&
           <Tooltip title={<Typography variant="body1">Submit Task</Typography>}>
             <Button disabled={isProcessing} onClick={handleSave} color="primary">
               <BackupOutlined color={isContentSaved ? 'primary' : 'secondary'} />
             </Button>
           </Tooltip>
-        )}
+        }
       </Grid>
       {isEditable && (
         <>

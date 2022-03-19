@@ -95,12 +95,13 @@ function SlateTranscriptEditor(props) {
   const [isContentModified, setIsContentIsModified] = useState(false);
   const [isContentSaved, setIsContentSaved] = useState(true);
 
-  const [editMode, setEditMode] = useState('normal');
+  const [editMode, setEditMode] = useState(props.mode);
 
-  const [classificationMap, setClassificationMap] = useState(undefined);
+  const [classificationMap, setClassificationMap] = useState(props.mode === 'classification' ? new Map() : undefined);
+  const [rerenderLeafHelper, setRerenderLeafHelper] = useState(0);
 
   // BEGIN variables for commandclips mode
-  let [audioURL, resetAudio, isRecording, startRecording, stopRecording] = useRecorder();
+  let [audioURL, resetAudio, isRecording, startRecording, stopRecording, setAudioUrl] = useRecorder();
   let [activePIndex, setActivePIndex] = useState(null);
   let [beforeText, setBeforeText] = useState('');
   let [finishedPIndices, setFinishedPIndices] = useState([]);
@@ -118,8 +119,26 @@ function SlateTranscriptEditor(props) {
     if (props.transcriptData) {
       const res = convertDpeToSlate(props.transcriptData);
       setValue(res);
+      if (classificationMap !== undefined) {
+        fillClassificationMap(res);
+      }
     }
   }, []);
+
+  useEffect(() => {
+    if (classificationMap !== undefined && classificationMap.size < 1) {
+      fillClassificationMap(value);
+      setRerenderLeafHelper(rerenderLeafHelper + 1);
+    }
+  }, [classificationMap]);
+
+  const fillClassificationMap = (content) => {
+    for (const [index, element] of content.entries()) {
+      const default_class = element.children[0].text.split(';')[0];
+      classificationMap.set(index, default_class)
+    }
+    setClassificationMap(new Map(classificationMap));
+  }
 
   // handles interim results for worrking with a Live STT
   useEffect(() => {
@@ -187,25 +206,22 @@ function SlateTranscriptEditor(props) {
 
   const handleModeChange = async (mode) => {
     console.log("mode changed to " + mode);
-    setEditMode(mode);
 
     switch (mode) {
-      case 'commandclips':
-        localforage.clear();
-        break;
       case 'classification':
         setClassificationMap(new Map());
         break;
       default:
-        setClassificationMap();
+        setClassificationMap(undefined);
     }
+    setEditMode(mode)
   }
 
   // const updateCommandClipData = (data) => {
   //   data.forEach(attribute => {
   //     commandClipData[attribute[0]] = attribute[1];
   //   });
-  // }  
+  // }
 
   const insertTextInaudible = () => {
     Transforms.insertText(editor, '[INAUDIBLE]');
@@ -242,18 +258,20 @@ function SlateTranscriptEditor(props) {
   };
 
   const handleTimeUpdated = (e) => {
-    setCurrentTime(e.target.currentTime);
-    // TODO: setting duration here as a workaround
-    setDuration(mediaRef.current.duration);
-    //  TODO: commenting this out for now, not sure if it will fire to often?
-    // if (props.handleAnalyticsEvents) {
-    //   // handles if click cancel and doesn't set speaker name
-    //   props.handleTimeUpdated('ste_handle_time_update', {
-    //     fn: 'handleTimeUpdated',
-    //     duration: mediaRef.current.duration,
-    //     currentTime: e.target.currentTime,
-    //   });
-    // }
+    if (mediaRef && mediaRef.current) {
+      setCurrentTime(e.target.currentTime);
+      // TODO: setting duration here as a workaround
+      setDuration(mediaRef.current.duration);
+      //  TODO: commenting this out for now, not sure if it will fire to often?
+      // if (props.handleAnalyticsEvents) {
+      //   // handles if click cancel and doesn't set speaker name
+      //   props.handleTimeUpdated('ste_handle_time_update', {
+      //     fn: 'handleTimeUpdated',
+      //     duration: mediaRef.current.duration,
+      //     currentTime: e.target.currentTime,
+      //   });
+      // }
+    }
   };
 
   const handleSetPlaybackRate = (e) => {
@@ -317,6 +335,10 @@ function SlateTranscriptEditor(props) {
         return <TimedTextElement {...props} />;
       case 'commandclips':
         return <CommandClipsElement {...props} />;
+      case 'commandclips2':
+        return <CommandClipsElement {...props} />;
+      case 'commandclipsCheck':
+        return <CommandClipsElement {...props} />;
       case 'classification':
         return <TimedTextElement {...props} />;
       default:
@@ -327,7 +349,7 @@ function SlateTranscriptEditor(props) {
   const handleClassificationRadioButtonChange = (event) => {
     const key = event.target.name.split('_')[1];
     const value = event.target.value;
-    setClassificationMap(new Map(classificationMap.set(key, value)));
+    setClassificationMap(new Map(classificationMap.set(parseInt(key), value)));
   };
 
   const ClassificationRadioGroup = (props) => {
@@ -340,6 +362,7 @@ function SlateTranscriptEditor(props) {
           aria-labelledby={'classification_' + props.index}
           name={'classification_' + props.index}
           onChange={handleClassificationRadioButtonChange}
+          defaultValue={classificationMap.get(props.index)}
         >
           {classes.map((object, i) =>
             <FormControlLabel value={object} control={<Radio />} label={object} />)
@@ -368,7 +391,7 @@ function SlateTranscriptEditor(props) {
         }
       </span>
     );
-  }, [editMode]);
+  }, [editMode, rerenderLeafHelper]);
 
   //
 
@@ -515,17 +538,19 @@ function SlateTranscriptEditor(props) {
     let textXl = 7;
 
     let editval;
-    if (editMode === "commandclips") {
+    if (editMode === "commandclips" || editMode === "commandclipsCheck") {
       if (audioURL && (index === activePIndex)) {
         editval = true;
       } else {
         editval = false;
       }
+    } else if (editMode === "commandclips2") {
+      editval = false;
     } else {
       editval = true;
     }
     const [editable, setEditable] = useState(editval);
-    
+
 
     const handleRec = () => {
       if (isRecordingTTE) {
@@ -540,7 +565,27 @@ function SlateTranscriptEditor(props) {
         setIsRecordingTTE(true);
         startRecording();
         setActivePIndex(index);
-        
+
+      }
+    }
+    const playCommandClip = () => {
+      const a = new Audio(audioURL);
+      a.play();
+    }
+
+    const playCommandClipCheckMode = async () => {
+      const audio = await localforage.getItem(parseInt(index) + 'commandclip');
+      if (audio !== null) {
+        const bt = props.element.children[0].text;
+        setBeforeText(bt);
+        setActivePIndex(index);
+
+        const audioUrlFromBlob = await URL.createObjectURL(audio);
+        setAudioUrl(audioUrlFromBlob);
+        const a = new Audio(audioUrlFromBlob);
+        a.play();
+      } else {
+        alert("no audio available, choose another audio file");
       }
     }
 
@@ -615,9 +660,14 @@ function SlateTranscriptEditor(props) {
       }
     }
 
-    const playCommandClip = () => {
-      const a = new Audio(audioURL);
-      a.play();
+    const handleDoneCommandclips2 = async() => {
+      let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
+      localforage.setItem(parseInt(index) + 'commandclip', blob);
+      finishedPIndices.push(index);
+      setFinishedPIndices(finishedPIndices);
+      setActivePIndex(null);
+      // resetAudio needs to be at the end, because it triggers a rerender of the element.
+      resetAudio();
     }
 
     return (
@@ -643,13 +693,21 @@ function SlateTranscriptEditor(props) {
         )}
         <Grid item contentEditable={false} xs={8} sm={9} md={9} lg={3} xl={3}>
           <div style={{display: 'inline-block', backgroundColor: done ? '#9E9' : '#FFF'}}>
-          <IconButton onClick={handleRec} disabled={(activePIndex != null && activePIndex !== index) || done}>
-            {isRecordingTTE ? <Stop/> : <Mic/>}
+          {editMode !== 'commandclipsCheck' &&
+            <IconButton onClick={handleRec} disabled={(activePIndex != null && activePIndex !== index) || done}>
+              {isRecordingTTE ? <Stop/> : <Mic/>}
+           </IconButton>
+          }
+          <IconButton
+            onClick={editMode !== 'commandclipsCheck' ? playCommandClip : playCommandClipCheckMode}
+            disabled={editMode !== 'commandclipsCheck'
+              ? !((activePIndex === index) && audioURL) || isRecordingTTE
+              : (activePIndex != null && activePIndex !== index) || done
+            }
+          >
+             <PlayCircle/>
           </IconButton>
-          <IconButton onClick={playCommandClip} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
-            <PlayCircle/>
-          </IconButton>
-          <IconButton onClick={handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+          <IconButton onClick={editMode === 'commandclips2' ? handleDoneCommandclips2: handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
             <DoneOutline/>
           </IconButton>
           </div>
@@ -671,19 +729,24 @@ function SlateTranscriptEditor(props) {
 
   const handleCommandClipsDownload = async () => {
     console.log("generating zip");
+    const texts = new Array();
     let zip = new JSZip();
     for (const i of finishedPIndices) {
       const dataKey = parseInt(i) + 'data';
       const ccKey = parseInt(i) + 'commandclip';
       const data = await localforage.getItem(dataKey);
       const audio = await localforage.getItem(ccKey);
-      zip.file(dataKey + ".json", JSON.stringify(data));
       zip.file(ccKey + ".wav", audio);
+
+      if (data !== null) {
+        texts.push({"id": i, "afterText": data["afterText"]});
+      }
     }
-    
+
+    zip.file("data.json", JSON.stringify(texts));
     zip.generateAsync({type:"blob"}).then(
       function(content) {
-        saveAs(content, "data.zip");
+        saveAs(content, props.title + "_done.zip");
       }
     );
   }
@@ -1077,150 +1140,152 @@ function SlateTranscriptEditor(props) {
         )}
 
         <Grid container direction="row" justifycontent="center" alignItems="stretch" spacing={2}>
-          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} container direction="column" justifycontent="space-between" alignItems="stretch">
-            <Grid container direction="column" justifycontent="flex-start" alignItems="stretch" spacing={2}>
-              <Grid item container>
-                <video
-                  style={{ backgroundColor: 'black' }}
-                  ref={mediaRef}
-                  src={props.mediaUrl}
-                  width={'100%'}
-                  // height="auto"
-                  controls
-                  playsInline
-                ></video>
-              </Grid>
-              <Grid container direction="row" justifycontent="space-between" alignItems="flex-start" spacing={1} item>
-                <Grid item>
-                  <p>
-                    <code style={{ color: 'grey' }}>{shortTimecode(currentTime)}</code>
-                    <span style={{ color: 'grey' }}> {` | `}</span>
-                    <code style={{ color: 'grey' }}>{duration ? `${shortTimecode(duration)}` : '00:00:00'}</code>
-                  </p>
+          {props.mode !== "commandclipsCheck" &&
+            <Grid item xs={12} sm={4} md={4} lg={4} xl={4} container direction="column" justifycontent="space-between" alignItems="stretch">
+              <Grid container direction="column" justifycontent="flex-start" alignItems="stretch" spacing={2}>
+                <Grid item container>
+                  <video
+                    style={{ backgroundColor: 'black' }}
+                    ref={mediaRef}
+                    src={props.mediaUrl}
+                    width={'100%'}
+                    // height="auto"
+                    controls
+                    playsInline
+                  ></video>
                 </Grid>
-                <Grid item>
-                  <FormControl>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select" value={playbackRate} onChange={handleSetPlaybackRate}>
-                      {PLAYBACK_RATE_VALUES.map((playbackRateValue, index) => {
-                        return (
-                          <MenuItem key={index + playbackRateValue} value={playbackRateValue}>
-                            {' '}
-                            x {playbackRateValue}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                    <FormHelperText>Speed</FormHelperText>
-                  </FormControl>
-                </Grid>
-                <Grid item>
-                  <Tooltip title={<Typography variant="body1">{` Seek back by ${SEEK_BACK_SEC} seconds`}</Typography>}>
-                    <Button color="primary" onClick={handleSeekBack} block="true">
-                      <Replay10Icon color="primary" fontSize="large" />
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title={<Typography variant="body1">{` Fast forward by ${SEEK_BACK_SEC} seconds`}</Typography>}>
-                    <Button color="primary" onClick={handleFastForward} block="true">
-                      <Forward10Icon color="primary" fontSize="large" />
-                    </Button>
-                  </Tooltip>
-                </Grid>
-
-                <Grid item>
-                  {props.isEditable && (
-                    <Tooltip
-                      enterDelay={3000}
-                      title={
-                        <Typography variant="body1">
-                          {`Turn ${isPauseWhiletyping ? 'off' : 'on'} pause while typing functionality. As
-                      you start typing the media while pause playback until you stop. Not
-                      reccomended on longer transcript as it might present performance issues.`}
-                        </Typography>
-                      }
-                    >
-                      <Typography variant="subtitle2" gutterBottom>
-                        <Switch color="primary" checked={isPauseWhiletyping} onChange={handleSetPauseWhileTyping} />
-                        Pause media while typing
-                      </Typography>
+                <Grid container direction="row" justifycontent="space-between" alignItems="flex-start" spacing={1} item>
+                  <Grid item>
+                    <p>
+                      <code style={{ color: 'grey' }}>{shortTimecode(currentTime)}</code>
+                      <span style={{ color: 'grey' }}> {` | `}</span>
+                      <code style={{ color: 'grey' }}>{duration ? `${shortTimecode(duration)}` : '00:00:00'}</code>
+                    </p>
+                  </Grid>
+                  <Grid item>
+                    <FormControl>
+                      <Select labelId="demo-simple-select-label" id="demo-simple-select" value={playbackRate} onChange={handleSetPlaybackRate}>
+                        {PLAYBACK_RATE_VALUES.map((playbackRateValue, index) => {
+                          return (
+                            <MenuItem key={index + playbackRateValue} value={playbackRateValue}>
+                              {' '}
+                              x {playbackRateValue}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                      <FormHelperText>Speed</FormHelperText>
+                    </FormControl>
+                  </Grid>
+                  <Grid item>
+                    <Tooltip title={<Typography variant="body1">{` Seek back by ${SEEK_BACK_SEC} seconds`}</Typography>}>
+                      <Button color="primary" onClick={handleSeekBack} block="true">
+                        <Replay10Icon color="primary" fontSize="large" />
+                      </Button>
                     </Tooltip>
-                  )}
-                </Grid>
-              </Grid>
+                    <Tooltip title={<Typography variant="body1">{` Fast forward by ${SEEK_BACK_SEC} seconds`}</Typography>}>
+                      <Button color="primary" onClick={handleFastForward} block="true">
+                        <Forward10Icon color="primary" fontSize="large" />
+                      </Button>
+                    </Tooltip>
+                  </Grid>
 
-              <Grid item>
-                <Tooltip
-                  enterDelay={100}
-                  title={
-                    <Typography variant="body1">
-                      {!props.isEditable && (
-                        <>
-                          You are in read only mode. <br />
-                        </>
-                      )}
-                      Double click on a word or time stamp to jump to the corresponding point in the media. <br />
-                      {props.isEditable && (
-                        <>
-                          <KeyboardIcon /> Start typing to edit text.
-                          <br />
-                          <PeopleIcon /> You can add and change names of speakers in your transcript.
-                          <br />
-                          <KeyboardReturnOutlinedIcon /> Hit enter in between words to split a paragraph.
-                          <br />
-                          <SaveIcon />
-                          Remember to save regularly.
-                          <br />
-                        </>
-                      )}
-                      <SaveAltIcon /> Export to get a copy.
-                    </Typography>
-                  }
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
+                  <Grid item>
+                    {props.isEditable && (
+                      <Tooltip
+                        enterDelay={3000}
+                        title={
+                          <Typography variant="body1">
+                            {`Turn ${isPauseWhiletyping ? 'off' : 'on'} pause while typing functionality. As
+                        you start typing the media while pause playback until you stop. Not
+                        reccomended on longer transcript as it might present performance issues.`}
+                          </Typography>
+                        }
+                      >
+                        <Typography variant="subtitle2" gutterBottom>
+                          <Switch color="primary" checked={isPauseWhiletyping} onChange={handleSetPauseWhileTyping} />
+                          Pause media while typing
+                        </Typography>
+                      </Tooltip>
+                    )}
+                  </Grid>
+                </Grid>
+
+                <Grid item>
+                  <Tooltip
+                    enterDelay={100}
+                    title={
+                      <Typography variant="body1">
+                        {!props.isEditable && (
+                          <>
+                            You are in read only mode. <br />
+                          </>
+                        )}
+                        Double click on a word or time stamp to jump to the corresponding point in the media. <br />
+                        {props.isEditable && (
+                          <>
+                            <KeyboardIcon /> Start typing to edit text.
+                            <br />
+                            <PeopleIcon /> You can add and change names of speakers in your transcript.
+                            <br />
+                            <KeyboardReturnOutlinedIcon /> Hit enter in between words to split a paragraph.
+                            <br />
+                            <SaveIcon />
+                            Remember to save regularly.
+                            <br />
+                          </>
+                        )}
+                        <SaveAltIcon /> Export to get a copy.
+                      </Typography>
+                    }
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <InfoOutlinedIcon fontSize="small" color="primary" />
+                      <Typography color="primary" variant="body1">
+                        How Does this work?
+                      </Typography>
+                    </div>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Link
+                    color="inherit"
+                    onClick={() => {
+                      setShowSpeakersCheatShet(!showSpeakersCheatShet);
                     }}
                   >
-                    <InfoOutlinedIcon fontSize="small" color="primary" />
-                    <Typography color="primary" variant="body1">
-                      How Does this work?
+                    <Typography variant="subtitle2" gutterBottom>
+                      <b>Speakers</b>
                     </Typography>
-                  </div>
-                </Tooltip>
-              </Grid>
-              <Grid item>
-                <Link
-                  color="inherit"
-                  onClick={() => {
-                    setShowSpeakersCheatShet(!showSpeakersCheatShet);
-                  }}
-                >
-                  <Typography variant="subtitle2" gutterBottom>
-                    <b>Speakers</b>
-                  </Typography>
-                </Link>
+                  </Link>
 
-                <Collapse in={showSpeakersCheatShet}>
-                  {speakerOptions.map((speakerName, index) => {
-                    return (
-                      <Typography
-                        variant="body2"
-                        gutterBottom
-                        key={index + speakerName}
-                        className={'text-truncate'}
-                        title={speakerName.toUpperCase()}
-                      >
-                        {speakerName}
-                      </Typography>
-                    );
-                  })}
-                </Collapse>
+                  <Collapse in={showSpeakersCheatShet}>
+                    {speakerOptions.map((speakerName, index) => {
+                      return (
+                        <Typography
+                          variant="body2"
+                          gutterBottom
+                          key={index + speakerName}
+                          className={'text-truncate'}
+                          title={speakerName.toUpperCase()}
+                        >
+                          {speakerName}
+                        </Typography>
+                      );
+                    })}
+                  </Collapse>
+                </Grid>
+                {/* <Grid item>{props.children}</Grid> */}
               </Grid>
-              {/* <Grid item>{props.children}</Grid> */}
+              <Grid item>{props.children}</Grid>
             </Grid>
-            <Grid item>{props.children}</Grid>
-          </Grid>
+          }
 
           <Grid item xs={12} sm={7} md={7} lg={7} xl={7}>
             {value.length !== 0 ? (
@@ -1303,6 +1368,7 @@ SlateTranscriptEditor.propTypes = {
   title: PropTypes.string,
   showTitle: PropTypes.bool,
   transcriptDataLive: PropTypes.object,
+  mode: PropTypes.string,
 };
 
 SlateTranscriptEditor.defaultProps = {

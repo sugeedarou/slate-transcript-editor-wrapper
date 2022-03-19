@@ -26,6 +26,7 @@ function SlateTranscriptEditorPage() {
         showSpeakers={false}
         handleSaveEditor={props.state.uploadTranscript}
         fileName={props.state.fileName}
+        mode={props.state.mode}
       />
       </div>
     );

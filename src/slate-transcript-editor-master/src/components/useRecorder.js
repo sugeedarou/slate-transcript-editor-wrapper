@@ -49,7 +49,11 @@ const useRecorder = () => {
       setAudioURL('');
   }
 
-  return [audioURL, resetAudio, isRecording, startRecording, stopRecording];
+  const setAudioUrl = (url) => {
+    setAudioURL(url);
+  }
+
+  return [audioURL, resetAudio, isRecording, startRecording, stopRecording, setAudioUrl];
 };
 
 async function requestRecorder() {

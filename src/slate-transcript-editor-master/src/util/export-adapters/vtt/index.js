@@ -11,8 +11,8 @@ const normalisePlayerTime = function (seconds, fps) {
    * @param {*} seconds
    * @param {*} fps
    */
-  
-  
+
+
   const secondsToTimecodeVtt = function (ui_time, time_seconds) {
     // handle edge case, trying to convert zero seconds
     if (time_seconds === 0) {
@@ -64,7 +64,7 @@ const slateToVtt = ({
           text = "empty"
         }
       }else{
-        text = classificationMap.get(index.toString())
+        text = classificationMap.get(index)
         if(text===undefined){
           text = "empty"
         }

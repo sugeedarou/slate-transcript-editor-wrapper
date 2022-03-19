@@ -8,9 +8,12 @@ Example for `src/constants.js`:
 ```javascript
 var SERVER_URL = "http://127.0.0.1:8000";
 var OFFLINE = true;
+const ONE_FILE_MODE = false;
+const MODE_MENU = false;
+const DEFAULT_MODE = "normal";
 
-export { SERVER_URL };
-export { OFFLINE };
+export { SERVER_URL, OFFLINE, ONE_FILE_MODE, DEFAULT_MODE, MODE_MENU };
+
 ```
 
 ## Local Development Setup
