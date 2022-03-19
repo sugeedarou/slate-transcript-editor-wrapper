@@ -98,6 +98,7 @@ function SlateTranscriptEditor(props) {
   const [editMode, setEditMode] = useState(props.mode);
 
   const [classificationMap, setClassificationMap] = useState(props.mode === 'classification' ? new Map() : undefined);
+  const [rerenderLeafHelper, setRerenderLeafHelper] = useState(0);
 
   // BEGIN variables for commandclips mode
   let [audioURL, resetAudio, isRecording, startRecording, stopRecording, setAudioUrl] = useRecorder();
@@ -118,8 +119,26 @@ function SlateTranscriptEditor(props) {
     if (props.transcriptData) {
       const res = convertDpeToSlate(props.transcriptData);
       setValue(res);
+      if (classificationMap !== undefined) {
+        fillClassificationMap(res);
+      }
     }
   }, []);
+
+  useEffect(() => {
+    if (classificationMap !== undefined && classificationMap.size < 1) {
+      fillClassificationMap(value);
+      setRerenderLeafHelper(rerenderLeafHelper + 1);
+    }
+  }, [classificationMap]);
+
+  const fillClassificationMap = (content) => {
+    for (const [index, element] of content.entries()) {
+      const default_class = element.children[0].text.split(';')[0];
+      classificationMap.set(index, default_class)
+    }
+    setClassificationMap(new Map(classificationMap));
+  }
 
   // handles interim results for worrking with a Live STT
   useEffect(() => {
@@ -187,7 +206,6 @@ function SlateTranscriptEditor(props) {
 
   const handleModeChange = async (mode) => {
     console.log("mode changed to " + mode);
-    setEditMode(mode);
 
     switch (mode) {
       case 'classification':
@@ -196,6 +214,7 @@ function SlateTranscriptEditor(props) {
       default:
         setClassificationMap(undefined);
     }
+    setEditMode(mode)
   }
 
   // const updateCommandClipData = (data) => {
@@ -330,7 +349,7 @@ function SlateTranscriptEditor(props) {
   const handleClassificationRadioButtonChange = (event) => {
     const key = event.target.name.split('_')[1];
     const value = event.target.value;
-    setClassificationMap(new Map(classificationMap.set(key, value)));
+    setClassificationMap(new Map(classificationMap.set(parseInt(key), value)));
   };
 
   const ClassificationRadioGroup = (props) => {
@@ -343,6 +362,7 @@ function SlateTranscriptEditor(props) {
           aria-labelledby={'classification_' + props.index}
           name={'classification_' + props.index}
           onChange={handleClassificationRadioButtonChange}
+          defaultValue={classificationMap.get(props.index)}
         >
           {classes.map((object, i) =>
             <FormControlLabel value={object} control={<Radio />} label={object} />)
@@ -371,7 +391,7 @@ function SlateTranscriptEditor(props) {
         }
       </span>
     );
-  }, [editMode]);
+  }, [editMode, rerenderLeafHelper]);
 
   //
 
