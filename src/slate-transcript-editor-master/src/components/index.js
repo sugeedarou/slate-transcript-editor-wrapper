@@ -746,7 +746,7 @@ function SlateTranscriptEditor(props) {
     zip.file("data.json", JSON.stringify(texts));
     zip.generateAsync({type:"blob"}).then(
       function(content) {
-        saveAs(content, "data.zip");
+        saveAs(content, props.title + "_done.zip");
       }
     );
   }
