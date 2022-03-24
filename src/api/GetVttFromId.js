@@ -1,3 +1,4 @@
+import { MOCK_BACKEND, SERVER_URL } from "../constants";
 export default async function GetVttFromId(token, id) {
   let response;
   var myHeaders = new Headers();
@@ -7,17 +8,19 @@ export default async function GetVttFromId(token, id) {
 
   var requestOptions = {
     method: "POST",
-    headers: myHeaders,
     body: formdata,
     redirect: "follow",
+    headers: myHeaders
   };
 
+  
+
   response = await fetch(
-    "https://i13hpc29.ira.uka.de:443/v1/getvtt/",
+    SERVER_URL+"v1/getvtt/",
     requestOptions
   );
-
   if (response.status == 200) {
+    
     let x = await response.json();
     if(x.vtt)
       return x.vtt;

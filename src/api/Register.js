@@ -1,3 +1,4 @@
+import { MOCK_BACKEND, SERVER_URL } from "../constants";
 /**
  * register api
  * returns true  if register succeeded
@@ -16,7 +17,7 @@
        redirect: 'follow'
      };
      
-     response = await fetch("https://i13hpc29.ira.uka.de:443/auth/register/", requestOptions);
+     response = await fetch(SERVER_URL+"auth/register/", requestOptions);
  
      if(response.status==201)
          return true

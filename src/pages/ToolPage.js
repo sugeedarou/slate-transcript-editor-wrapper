@@ -11,10 +11,13 @@ import GetVttFromId from "../api/GetVttFromId";
 import toast, { Toaster } from "react-hot-toast";
 import * as qs from "query-string";
 import GetVttCorrectionFromId from "../api/GetVttCorrectionFromId";
+import TaskRow from "../components/TaskRow";
+import getTaskList from "../api/GetTaskList";
+import getMediaURL from "../api/GetMediaURL";
 
 class ToolPage extends React.Component {
   SERVER_URL = "";
-
+  
   constructor(props) {
     super(props);
 
@@ -24,6 +27,7 @@ class ToolPage extends React.Component {
       id: null,
       taskId: "",
       fileName: "",
+      tasks:[]
     };
   }
 
@@ -46,11 +50,9 @@ class ToolPage extends React.Component {
   };
 
   handleLoadMediaUrl = () => {
-    const fileURL = prompt("Paste the URL you'd like to use here:");
+    const URL = prompt("Paste the URL you'd like to use here:");
+    this.parseURL(URL.toString())
 
-    this.setState({
-      mediaUrl: fileURL,
-    });
   };
 
   handleLoadTranscriptJson = (files) => {
@@ -119,7 +121,7 @@ class ToolPage extends React.Component {
 
   async getVttFromId() {
     let token = getToken();
-    let text = await GetVttCorrectionFromId(this.state.taskId);
+    let text = await GetVttCorrectionFromId(token,this.state.taskId);
     if (text) {
       if (!window.confirm("Load your last uploaded correction?")) {
         text = await GetVttFromId(token, this.state.taskId);
@@ -135,14 +137,44 @@ class ToolPage extends React.Component {
       });
   }
 
+  async getMediaURL()
+  {
+    let mediaURL = await getMediaURL(this.state.taskId);
+    if(mediaURL)
+    {
+      this.setState({mediaUrl:mediaURL})
+    }
+    else{
+      alert("failed to load files")
+    }
+  }
+
   componentDidUpdate(prevProps, prevState) {
     /*if (prevState.transcriptData !== this.state.transcriptData) {
       this.checkTranscriptId();
     }*/
   }
 
-  componentDidMount() {
-    let parsed = qs.parse(window.location.href.toString().split("/?")[1]);
+  /* async getTasks() {
+   let token = getToken();
+    if (token) {
+      let tasks = await getTaskList(token);
+      console.log(tasks);
+      if (tasks) {
+        const myTasks = tasks.tasks;
+        this.setState({tasks:myTasks});
+        //const assignedTasks = tasks.assignedTasks;
+        //setAssignedTasks(assignedTasks);
+      }
+    }
+  };*/
+
+  
+  parseURL(url)
+  {
+    let parsed = qs.parse(url.split("/?")[1]);
+    if (!(parsed.task_id && parsed.task_id != ""))
+      parsed = qs.parse(url.split("shared?")[1]);
     if (parsed.task_id && parsed.task_id != "") {
       this.state = {
         transcriptData: null,
@@ -151,8 +183,15 @@ class ToolPage extends React.Component {
         taskId: parsed.task_id,
         fileName: "",
       };
+      
       this.getVttFromId();
-    }
+      this.getMediaURL();
+    }   
+  } 
+
+  componentDidMount() {
+    //this.getTasks();
+    this.parseURL(window.location.href.toString())
   }
   render() {
     if (isAuth()) {
@@ -175,12 +214,12 @@ class ToolPage extends React.Component {
               }}
             >
               <p style={{ color: "#ffffff", fontSize: 10 }}>
-                <Button
+                {/*<Button
                   variant="contained"
                   component="label"
                   style={{ margin: "10px", marginRight: "0" }}
                 >
-                  Load Media File
+                  Got a URL
                   <input
                     hidden
                     type={"file"}
@@ -190,12 +229,46 @@ class ToolPage extends React.Component {
                   {this.state.mediaUrl && (
                     <CheckCircleIcon style={{ marginLeft: "10px" }} />
                   )}
+                </Button>*/}
+
+                <Button
+                  variant="contained"
+                  component="label"
+                  style={{ margin: "10px", marginRight: "0" }}
+                  onClick={()=>this.handleLoadMediaUrl()}
+                >
+                  Got a URL
+                  {this.state.mediaUrl && (
+                    <CheckCircleIcon style={{ marginLeft: "10px" }} />
+                  )}
                 </Button>
               </p>
             </div>
 
             <div style={{ height: 15 }}></div>
-            <div
+
+
+
+           {/*<div
+            style={{
+              backgroundColor: "rgba(255,255,255,0.05)",
+              padding: 20,
+              borderRadius: 10,
+              width: "50%",
+            }}
+          >
+            <p style={{ fontSize: 30, margin: 0, fontWeight: "bold" }}>
+              Your Media
+            </p>
+            {this.state.tasks
+              .slice(0)
+              .reverse()
+              .map((e, i) => {
+                if(!e.assigned&&!e.corrected)
+                  return <TaskRow key={i} task={e}></TaskRow>;
+              })}
+          </div> */} 
+            {/*<div
               style={{
                 backgroundColor: "rgba(255,255,255,0.05)",
                 borderRadius: 10,
@@ -235,8 +308,8 @@ class ToolPage extends React.Component {
                   Submit
                 </button>
               </div>
-              <p style={{fontSize:25}}>OR</p>*/}
-              <Button
+              <p style={{fontSize:25}}>OR</p>////////////////////////////////
+               <Button
                 variant="contained"
                 component="label"
                 style={{ margin: "10px", fontSize: 13 }}
@@ -254,7 +327,7 @@ class ToolPage extends React.Component {
                   <CheckCircleIcon style={{ marginLeft: "10px" }} />
                 )}
               </Button>
-            </div>
+            </div>*/}
 
             {this.state.transcriptData && this.state.mediaUrl && (
               <Redirect
@@ -272,7 +345,7 @@ class ToolPage extends React.Component {
               ></Redirect>
             )}
 
-            <img
+           {/* <img
               src={require("../images/background.png").default}
               style={{
                 bottom: "0%",
@@ -280,7 +353,7 @@ class ToolPage extends React.Component {
                 width: "100%",
                 position: "absolute",
               }}
-            ></img>
+            ></img>*/}
             <Toaster></Toaster>
           </header>
         </div>
