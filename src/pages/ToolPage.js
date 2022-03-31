@@ -179,6 +179,7 @@ class ToolPage extends React.Component {
     let parsed = qs.parse(url.split("/?")[1]);
     if (!(parsed.task_id && parsed.task_id != ""))
       parsed = qs.parse(url.split("shared?")[1]);
+    
     if (parsed.task_id && parsed.task_id != "") {
       this.state = {
         transcriptData: null,
@@ -192,13 +193,14 @@ class ToolPage extends React.Component {
       this.getMediaURL();
     }
     else{
+
       toast.error("Failed to load data. Please make sure the Link you got is correct.", { position: "bottom-center" });
     }   
   } 
 
   componentDidMount() {
     //this.getTasks();
-    this.parseURL(window.location.href.toString())
+    //this.parseURL(window.location.href.toString())
   }
   render() {
     if (isAuth()) {
