@@ -8,6 +8,7 @@ import { getToken, isAuth, setTaskId } from "../user/User";
 import { Redirect } from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
+import GetVttCorrectionFromIdWA from "../api/GetVttCorrectionFromIdWA";
 import toast, { Toaster } from "react-hot-toast";
 import * as qs from "query-string";
 import GetVttCorrectionFromId from "../api/GetVttCorrectionFromId";
@@ -123,9 +124,12 @@ class ToolPage extends React.Component {
     let token = getToken();
     let text = await GetVttCorrectionFromId(token,this.state.taskId);
     if (text) {
-      if (!window.confirm("Load your last uploaded correction?")) {
-        text = await GetVttFromId(token, this.state.taskId);
-      }
+      console.log("Hss")
+      // if (!window.confirm("Load your last uploaded correction?")) {
+      //   console.log("%%%%%%%66666")
+      //   //text = await GetVttFromId(token, this.state.taskId);
+      //   text = await GetVttCorrectionFromIdWA(token, this.state.taskId);
+      // }
     }
     else{
       text = await GetVttFromId(token, this.state.taskId);
@@ -186,6 +190,9 @@ class ToolPage extends React.Component {
       
       this.getVttFromId();
       this.getMediaURL();
+    }
+    else{
+      toast.error("Failed to load data. Please make sure the Link you got is correct.", { position: "bottom-center" });
     }   
   } 
 

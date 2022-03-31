@@ -569,6 +569,7 @@ function SlateTranscriptEditor(props) {
     try
     {
       setIsProcessing(true);
+      console.log("inside save")
       //const format = props.autoSaveContentType ? props.autoSaveContentType : 'digitalpaperedit';
       // const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
       let editorContnet = await handleExport({ type: `vtt`, isDownload: false });
@@ -875,16 +876,18 @@ function SlateTranscriptEditor(props) {
                         <>
                           <KeyboardIcon /> Start typing to edit text.
                           <br />
-                          <PeopleIcon /> You can add and change names of speakers in your transcript.
+                          {/* <PeopleIcon /> You can add and change names of speakers in your transcript. */}
+                          {/* <br /> */}
+                          {/* <KeyboardReturnOutlinedIcon /> Hit enter in between words to split a paragraph.
                           <br />
-                          <KeyboardReturnOutlinedIcon /> Hit enter in between words to split a paragraph.
+                          <SaveIcon /> */}
+                          {/* <SaveAltIcon /> Export to get a copy.                         */}
                           <br />
-                          <SaveIcon />
-                          Remember to save regularly.
                           <br />
                         </>
                       )}
-                      <SaveAltIcon /> Export to get a copy.
+                      {/* <SaveAltIcon /> Export to get a copy. */}
+                      Remember to save regularly, by pressing save.
                     </Typography>
                   }
                 >

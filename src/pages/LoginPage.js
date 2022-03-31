@@ -35,6 +35,20 @@ function LoginPage() {
         </h1>
         <div
           style={{
+            marginBottom: "20px",
+            backgroundColor: "rgba(255,255,255,0.05)",
+            padding: 20,
+            borderRadius: 10,
+            width: "60%",
+          }}
+        >
+        <strong>! This website will only work on Chrome Browser </strong>
+
+        </div>
+
+
+        <div
+          style={{
             backgroundColor: "rgba(255,255,255,0.05)",
             padding: 20,
             borderRadius: 10,

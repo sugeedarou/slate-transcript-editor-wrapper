@@ -22,6 +22,8 @@ import UndoOutlinedIcon from '@material-ui/icons/UndoOutlined';
 import EmojiSymbolsOutlinedIcon from '@material-ui/icons/EmojiSymbolsOutlined';
 import subtitlesExportOptionsList from '../../util/export-adapters/subtitles-generator/list.js';
 
+const MINUTE_MS = 600000;
+
 function SideBtns({
   handleExport,
   isProcessing,
@@ -52,6 +54,13 @@ function SideBtns({
   const handleMenuClick = (event) => {
     setAnchorMenuEl(event.currentTarget);
   };
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     console.log("inisde interval")
+  //   }, MINUTE_MS);
+  //   return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+  // }, [])
 
   return (
     <Grid container direction="column" justifycontent="flex-start" alignItems="stretch">
@@ -272,13 +281,13 @@ function SideBtns({
         <Grid item>
             <br />
           </Grid>
-        {isEditable && (
+        {/* {isEditable && (
           <Tooltip title={<Typography variant="body1">Submit Task</Typography>}>
             <Button disabled={isProcessing} onClick={handleSave} color="primary">
               <BackupOutlined color={isContentSaved ? 'primary' : 'secondary'} />
             </Button>
           </Tooltip>
-        )}
+        )} */}
       </Grid>
       {isEditable && (
         <>
@@ -393,6 +402,23 @@ function SideBtns({
         <br />
       </Grid>
       <Grid item>{optionalBtns}</Grid>
+      {isEditable && (
+          <Button id="savebtn"
+          onClick={handleSave}
+            style={{
+              backgroundColor: "white",//"#20DF7F",
+              borderColor: "blue",
+              border: "2px solid",
+              width: "60%",
+              height: 35,
+              borderRadius: 7,
+              marginTop: 10,
+              color: "black",
+            }}
+          >
+            Save
+          </Button>
+      )}
     </Grid>
   );
 }
