@@ -42,7 +42,7 @@ function LoginPage() {
             width: "60%",
           }}
         >
-        <strong>! This website will only work on Chrome Browser </strong>
+        <strong>This website will only work on Chrome and Firefox Browsers</strong>
 
         </div>
 
