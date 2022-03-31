@@ -149,16 +149,6 @@ function SlateTranscriptEditor(props) {
     };
   }, []);
 
-  
-  const INTERVAL = 600000;
-  //called every 10 minutes
-useEffect(() => {
-  const interval = setInterval(() => {
-    handleSave()
-  }, INTERVAL);
-
-  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-}, [])
 
   useEffect(() => {}, [currentTime]);
 
@@ -585,6 +575,8 @@ useEffect(() => {
       // const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
       let editorContnet = await handleExport({ type: `vtt`, isDownload: false });
       let pre = `WEBVTT\n\nNOTE ${props.id}\n\n`;
+      console.log('editorContnet')
+      console.log(editorContnet)
       pre += editorContnet
       editorContnet = pre
       let response = await SetVttCorrection(props.fileName,editorContnet)
