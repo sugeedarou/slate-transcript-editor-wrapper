@@ -149,6 +149,17 @@ function SlateTranscriptEditor(props) {
     };
   }, []);
 
+  
+  const INTERVAL = 600000;
+  //called every 10 minutes
+useEffect(() => {
+  const interval = setInterval(() => {
+    handleSave()
+  }, INTERVAL);
+
+  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+}, [])
+
   useEffect(() => {}, [currentTime]);
 
   // useEffect(() => {
