@@ -1,3 +1,4 @@
+import { MOCK_BACKEND, SERVER_URL } from "../constants";
 export default async function getUserInfo(token)
  {
      let response;
@@ -13,7 +14,7 @@ export default async function getUserInfo(token)
        redirect: 'follow'
      };
      
-     response = await fetch("https://i13hpc29.ira.uka.de:443/auth/userinfo/", requestOptions)
+     response = await fetch(SERVER_URL+"auth/userinfo/", requestOptions)
      
      if(response.status==200)
          return response.json()

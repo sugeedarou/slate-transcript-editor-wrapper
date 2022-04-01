@@ -1,15 +1,24 @@
-export default async function GetVttCorrectionFromId(id) {
+import { MOCK_BACKEND, SERVER_URL } from "../constants";
+export default async function GetVttCorrectionFromId(token,id) {
   let response;
   var formdata = new FormData();
   formdata.append("taskId", id);
 
+  var myHeaders = new Headers();
+  myHeaders.append("Authorization", "Token " + token);
+
   var requestOptions = {
+    headers:myHeaders,
     method: "POST",
     body: formdata,
     redirect: "follow",
   };
+
+  console.log("id")
+  console.log(id)
+
   response = await fetch(
-    "https://i13hpc29.ira.uka.de:443/v1/getcorrectedvtt/",
+    SERVER_URL+"v1/getcorrectedvtt/",
     requestOptions
   );
   if (response.status == 200) {
