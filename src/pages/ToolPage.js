@@ -37,16 +37,18 @@ class ToolPage extends React.Component {
   // https://stackoverflow.com/questions/8885701/play-local-hard-drive-video-file-with-html5-video-tag
   handleLoadMedia = (files) => {
     const file = files[0];
+    const ext = file.name.split('.').at(-1)
 
-    if (file.type !== "application/zip") {
-      this.processMediaFile(file);
-    } else {
+    if (["application/zip", "application/zip-compressed", "application/x-zip-compressed"].includes(file.type)
+      || ext === 'zip') {
       this.setState({
         processing: true,
         exportName: file.name.split('.').slice(0, -1).join('.'),
       });
       const fileURL = URL.createObjectURL(file);
       this.processZip(fileURL)
+    } else {
+      this.processMediaFile(file);
     }
   };
 
