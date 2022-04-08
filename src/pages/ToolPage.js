@@ -31,6 +31,7 @@ class ToolPage extends React.Component {
       mode: "",
       processing: false,
       errorReadingFile: false,
+      vttFile: "",
     };
   }
 
@@ -79,6 +80,7 @@ class ToolPage extends React.Component {
     JSZipUtils.getBinaryContent(fileURL, async (err, data) => {
       localforage.clear();
       const zipFile = await JSZip.loadAsync(data);
+      let vttFile = "";
 
       for (const file in zipFile.files) {
         const fileSplittedOnDot = file.split(".");
@@ -96,7 +98,7 @@ class ToolPage extends React.Component {
           localforage.setItem(fileSplittedOnDot[0], audioBlob);
         } else if (fileExtension === "vtt") {
           includesTranscriptFile = true;
-          const vttFile = await zipFile.files[file].async("string");
+          vttFile = await zipFile.files[file].async("string");
           const data = vttToDraft(vttFile);
           setTaskId(data[1]);
           transcriptData = data[0];
@@ -117,6 +119,7 @@ class ToolPage extends React.Component {
         }
       }
 
+
       if (!includesTranscriptFile || (!includesWaveFiles && !includesMediaFile)) {
         this.setState({
           processing: false,
@@ -129,6 +132,7 @@ class ToolPage extends React.Component {
           id: id,
           mode: ["commandclips", "commandclips2"].includes(DEFAULT_MODE) ? "commandclipsCheck" : DEFAULT_MODE,
           processing: false,
+          vttFile: vttFile,
         });
       } else {
         this.setState({
@@ -137,6 +141,7 @@ class ToolPage extends React.Component {
           id: id,
           mode: DEFAULT_MODE,
           processing: false,
+          vttFile: vttFile,
         });
       }
 
@@ -363,6 +368,7 @@ class ToolPage extends React.Component {
                     exportName: this.state.exportName,
                     uploadTranscript: this.state.uploadTranscript,
                     mode: this.state.mode,
+                    vttFile: this.state.vttFile,
                   },
                 }}
               ></Redirect>

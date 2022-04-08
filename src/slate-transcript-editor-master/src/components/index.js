@@ -746,7 +746,12 @@ function SlateTranscriptEditor(props) {
       }
     }
 
-    zip.file("data.json", JSON.stringify(texts));
+    if (editMode === "commandclips") {
+      zip.file("data.json", JSON.stringify(texts));
+    }
+
+    zip.file("transcript.vtt", props.vttFile);
+
     zip.generateAsync({type:"blob"}).then(
       function(content) {
         saveAs(content, props.title + "_done.zip");
