@@ -562,6 +562,7 @@ function SlateTranscriptEditor(props) {
         // stopRecording must be last bc it triggers a rerender
         stopRecording();
       } else {
+        mediaRef.current.pause();
         setIsRecordingTTE(true);
         startRecording();
         setActivePIndex(index);
@@ -569,6 +570,7 @@ function SlateTranscriptEditor(props) {
       }
     }
     const playCommandClip = () => {
+      mediaRef.current.pause();
       const a = new Audio(audioURL);
       a.play();
     }
@@ -673,6 +675,7 @@ function SlateTranscriptEditor(props) {
         setActivePIndex(null);
         // resetAudio needs to be at the end, because it triggers a rerender of the element.
         resetAudio();
+        mediaRef.current.play();
       }
     }
 
