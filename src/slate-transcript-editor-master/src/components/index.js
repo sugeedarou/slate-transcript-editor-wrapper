@@ -592,90 +592,84 @@ function SlateTranscriptEditor(props) {
     }
 
     const handleDone = async() => {
+      if (finishedPIndices.includes(index)) {
+        setFinishedPIndices(finishedPIndices.filter(pIndex => pIndex !== index));
+        setActivePIndex(index);
+
+        const audio = await localforage.getItem(parseInt(index) + 'commandclip');
+        if (audio !== null) {
+          const audioUrlFromBlob = await URL.createObjectURL(audio);
+          setAudioUrl(audioUrlFromBlob);
+        } else {
+          setAudioUrl(true);
+        }
+
+        return;
+      }
+
       if (editable) {
-        //setEditable(false);
-        // TODO grab text
         const at = props.element.children[0].text;
         if (at === beforeText) {
           alert("you need to edit something!");
           return;
         }
-        // TODO grab audio with:
-        let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
-        // TODO send to backend
-        // if (OFFLINE) {
-        //   let zip = new JSZip();
-        //   zip.file("data.json", JSON.stringify({'beforeText': beforeText, 'afterText': at}));
-        //   zip.file("commandClip.wav", blob);
-        //   zip.generateAsync({type:"blob"}).then(
-        //     function(content) {
-        //       saveAs(content, "data.zip");
-        //     }
-        //   );
-        // }
         localforage.setItem(parseInt(index) + 'data', {'beforeText': beforeText, 'afterText': at});
-        localforage.setItem(parseInt(index) + 'commandclip', blob);
-        // send to backend
-        if (!OFFLINE) {
-          const taskId = getTaskId();
-          const beginText = props.element.start;
-          const numWords = props.element.children[0].words.length;
-          const endText = props.element.children[0].words[numWords - 1].end;
-          let prevContext = "";
-          let beginContext = beginText;
-          if (index > 0) {
-            prevContext = value[index - 1].children[0].text;
-            beginContext = value[index - 1].start;
-          }
-          let succContext = "";
-          let endContext = endText;
-          if (index < value.length - 1) {
-            succContext = value[index + 1].children[0].text;
-            const succContextNumWords = value[index + 1].children[0].words.length;
-            endContext = value[index + 1].children[0].words[succContextNumWords - 1].end;
-          }
-          const resp = setCommandClip(
-            beforeText,
-            at,
-            prevContext,
-            succContext,
-            blob,
-            beginContext,
-            beginText,
-            endText,
-            endContext,
-            taskId
-          )
-          console.log("lets look at the response");
-          console.log(resp);
+      }
 
-          //  if bad request: alert();
-          if (!resp) {
-            alert("something went wrong!");
-          }
-        }
-        finishedPIndices.push(index);
-        setFinishedPIndices(finishedPIndices);
-        setActivePIndex(null);
-        // resetAudio needs to be at the end, because it triggers a rerender of the element.
-        resetAudio();
+      if (["commandclips", "commandclips2"].includes(editMode)) {
+        let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
+        localforage.setItem(parseInt(index) + 'commandclip', blob);
+      }
+
+      finishedPIndices.push(index);
+      setFinishedPIndices(finishedPIndices);
+      setActivePIndex(null);
+      // resetAudio needs to be at the end, because it triggers a rerender of the element.
+      resetAudio();
+
+      if (["commandclips", "commandclips2"].includes(editMode)) {
+        mediaRef.current.play();
       }
     }
 
-    const handleDoneCommandclips2 = async() => {
-      if (finishedPIndices.includes(index)) {
-        setFinishedPIndices(finishedPIndices.filter(pIndex => pIndex !== index));
-        setActivePIndex(index);
-        setAudioUrl(true);
-      } else {
-        let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
-        localforage.setItem(parseInt(index) + 'commandclip', blob);
-        finishedPIndices.push(index);
-        setFinishedPIndices(finishedPIndices);
-        setActivePIndex(null);
-        // resetAudio needs to be at the end, because it triggers a rerender of the element.
-        resetAudio();
-        mediaRef.current.play();
+
+    // needs to be adapted to all modes (wait for backend structure)
+    const handleDoneOnlinePart = async(at, blob) => {
+      const taskId = getTaskId();
+      const beginText = props.element.start;
+      const numWords = props.element.children[0].words.length;
+      const endText = props.element.children[0].words[numWords - 1].end;
+      let prevContext = "";
+      let beginContext = beginText;
+      if (index > 0) {
+        prevContext = value[index - 1].children[0].text;
+        beginContext = value[index - 1].start;
+      }
+      let succContext = "";
+      let endContext = endText;
+      if (index < value.length - 1) {
+        succContext = value[index + 1].children[0].text;
+        const succContextNumWords = value[index + 1].children[0].words.length;
+        endContext = value[index + 1].children[0].words[succContextNumWords - 1].end;
+      }
+      const resp = setCommandClip(
+        beforeText,
+        at,
+        prevContext,
+        succContext,
+        blob,
+        beginContext,
+        beginText,
+        endText,
+        endContext,
+        taskId
+      )
+      console.log("lets look at the response");
+      console.log(resp);
+
+      //  if bad request: alert();
+      if (!resp) {
+        alert("something went wrong!");
       }
     }
 
@@ -716,7 +710,7 @@ function SlateTranscriptEditor(props) {
           >
              <PlayCircle/>
           </IconButton>
-          <IconButton onClick={editMode === 'commandclips2' ? handleDoneCommandclips2: handleDone} disabled={!(((activePIndex === index) && audioURL) || (activePIndex === null && finishedPIndices.includes(index))) || isRecordingTTE}>
+          <IconButton onClick={handleDone} disabled={!(((activePIndex === index) && audioURL) || (activePIndex === null && finishedPIndices.includes(index))) || isRecordingTTE}>
             <DoneOutline/>
           </IconButton>
           </div>
