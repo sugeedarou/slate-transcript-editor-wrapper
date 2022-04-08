@@ -661,13 +661,19 @@ function SlateTranscriptEditor(props) {
     }
 
     const handleDoneCommandclips2 = async() => {
-      let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
-      localforage.setItem(parseInt(index) + 'commandclip', blob);
-      finishedPIndices.push(index);
-      setFinishedPIndices(finishedPIndices);
-      setActivePIndex(null);
-      // resetAudio needs to be at the end, because it triggers a rerender of the element.
-      resetAudio();
+      if (finishedPIndices.includes(index)) {
+        setFinishedPIndices(finishedPIndices.filter(pIndex => pIndex !== index));
+        setActivePIndex(index);
+        setAudioUrl(true);
+      } else {
+        let blob = await fetch(audioURL).then(r => r.blob({type: "audio/wav"}));
+        localforage.setItem(parseInt(index) + 'commandclip', blob);
+        finishedPIndices.push(index);
+        setFinishedPIndices(finishedPIndices);
+        setActivePIndex(null);
+        // resetAudio needs to be at the end, because it triggers a rerender of the element.
+        resetAudio();
+      }
     }
 
     return (
@@ -707,7 +713,7 @@ function SlateTranscriptEditor(props) {
           >
              <PlayCircle/>
           </IconButton>
-          <IconButton onClick={editMode === 'commandclips2' ? handleDoneCommandclips2: handleDone} disabled={!((activePIndex === index) && audioURL) || isRecordingTTE}>
+          <IconButton onClick={editMode === 'commandclips2' ? handleDoneCommandclips2: handleDone} disabled={!(((activePIndex === index) && audioURL) || (activePIndex === null && finishedPIndices.includes(index))) || isRecordingTTE}>
             <DoneOutline/>
           </IconButton>
           </div>
