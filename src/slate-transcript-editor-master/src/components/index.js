@@ -79,6 +79,7 @@ function SlateTranscriptEditor(props) {
   const [saveTimer, setSaveTimer] = useState(null);
   const [isPauseWhiletyping, setIsPauseWhiletyping] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [lastEditorContent,setLastEditorContent] = useState(false);
   // used isContentModified to avoid unecessarily run alignment if the slate value contnet has not been modified by the user since
   // last save or alignment
   const [isContentModified, setIsContentIsModified] = useState(false);
@@ -579,12 +580,18 @@ function SlateTranscriptEditor(props) {
       console.log(editorContnet)
       pre += editorContnet
       editorContnet = pre
+      if(editorContnet!=lastEditorContent)
+      {
+
       let response = await SetVttCorrection(props.fileName,editorContnet)
       if(response)
+      {
+        setLastEditorContent(editorContnet)
         toast.success("Uploaded to the server successfully", { position: "bottom-center" });
+      }
       else
         toast.error("failed to uploaded to the server", { position: "bottom-center" });
-      ////////////////////////////////////////////////
+      }
     }
     finally {
       setIsProcessing(false);
