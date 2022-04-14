@@ -555,8 +555,10 @@ function SlateTranscriptEditor(props) {
     const handleRec = () => {
       if (isRecordingTTE) {
         // grab text
-        const bt = props.element.children[0].text;
-        setBeforeText(bt);
+        if (beforeText === '') {
+          const bt = props.element.children[0].text;
+          setBeforeText(bt);
+        }
 
         setIsRecordingTTE(false);
         // stopRecording must be last bc it triggers a rerender
@@ -578,8 +580,11 @@ function SlateTranscriptEditor(props) {
     const playCommandClipCheckMode = async () => {
       const audio = await localforage.getItem(parseInt(index) + 'commandclip');
       if (audio !== null) {
-        const bt = props.element.children[0].text;
-        setBeforeText(bt);
+        if (beforeText === '') {
+          const bt = props.element.children[0].text;
+          setBeforeText(bt);
+        }
+
         setActivePIndex(index);
 
         const audioUrlFromBlob = await URL.createObjectURL(audio);
@@ -595,6 +600,7 @@ function SlateTranscriptEditor(props) {
       if (finishedPIndices.includes(index)) {
         setFinishedPIndices(finishedPIndices.filter(pIndex => pIndex !== index));
         setActivePIndex(index);
+        setBeforeText(null);
 
         const audio = await localforage.getItem(parseInt(index) + 'commandclip');
         if (audio !== null) {
@@ -613,7 +619,7 @@ function SlateTranscriptEditor(props) {
           alert("you need to edit something!");
           return;
         }
-        localforage.setItem(parseInt(index) + 'data', {'beforeText': beforeText, 'afterText': at});
+        localforage.setItem(parseInt(index) + 'data', {'afterText': at});
       }
 
       if (["commandclips", "commandclips2"].includes(editMode)) {
@@ -624,6 +630,7 @@ function SlateTranscriptEditor(props) {
       finishedPIndices.push(index);
       setFinishedPIndices(finishedPIndices);
       setActivePIndex(null);
+      setBeforeText("");
       // resetAudio needs to be at the end, because it triggers a rerender of the element.
       resetAudio();
 
