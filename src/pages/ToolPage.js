@@ -120,6 +120,8 @@ class ToolPage extends React.Component {
         }
       }
 
+      const doubleMacronBelow = '\u035f';
+      const vttWithoutDoubleMacronBelow = vttFile.replaceAll(doubleMacronBelow, '');
 
       if (!includesTranscriptFile || (!includesWaveFiles && !includesMediaFile)) {
         this.setState({
@@ -133,7 +135,7 @@ class ToolPage extends React.Component {
           id: id,
           mode: ["commandclips", "commandclips2"].includes(DEFAULT_MODE) ? "commandclipsCheck" : DEFAULT_MODE,
           processing: false,
-          vttFile: vttFile,
+          vttFile: vttWithoutDoubleMacronBelow,
         });
       } else {
         this.setState({
@@ -142,7 +144,7 @@ class ToolPage extends React.Component {
           id: id,
           mode: DEFAULT_MODE,
           processing: false,
-          vttFile: vttFile,
+          vttFile: vttWithoutDoubleMacronBelow,
         });
       }
 
