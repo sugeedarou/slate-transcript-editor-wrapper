@@ -13,7 +13,7 @@ import vttToDraft from "../import-adapter/vtt";
 import { getToken, isAuth, setTaskId } from "../user/User";
 import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
-import { ONE_FILE_MODE, DEFAULT_MODE } from "../constants.js";
+import { ONE_FILE_MODE, DEFAULT_MODE, AGREEMENT } from "../constants.js";
 
 
 class ToolPage extends React.Component {
@@ -32,6 +32,7 @@ class ToolPage extends React.Component {
       processing: false,
       errorReadingFile: false,
       vttFile: "",
+      agreement: false,
     };
   }
 
@@ -288,6 +289,34 @@ class ToolPage extends React.Component {
                   )}
                 </Button>
               </p>
+
+              <div style={{ display: "flex", flexDirection: "row" }}>
+                <input
+                  name="isGoing"
+                  type="checkbox"
+                  onChange={(e) => {
+                    this.setState({agreement: e.target.checked});
+                  }}
+                  style={{ alignSelf: "center" }}
+                />
+                <p href={AGREEMENT} style={{ fontSize: 10, alignSelf: "center" }}>
+                  {" "}
+                  I agree to the terms and conditions of this{" "}
+                </p>
+                <div style={{ width: 5 }}> </div>
+                <a
+                  href={AGREEMENT}
+                  style={{
+                    fontSize: 10,
+                    alignSelf: "center",
+                    display: "table-cell",
+                  }}
+                  target="_blank"
+                >
+                  {" "}
+                  agreement
+                </a>
+              </div>
             </div>
 
             <div style={{ height: 15 }}></div>
@@ -333,7 +362,8 @@ class ToolPage extends React.Component {
               </div>
               <p style={{fontSize:25}}>OR</p>*/}
               {this.state.errorReadingFile && "Problems reading file, please load another file."}
-              {this.state.processing && "Loading... This can take some time. Please be patient."}
+              {this.state.processing && this.state.agreement && "Loading... This can take some time. Please be patient."}
+              {this.state.processing && !this.state.agreement && "Loading... This can take some time. Please be patient. Do not forget to accept the agreement."}
               {!ONE_FILE_MODE &&
                 <Button
                   variant="contained"
@@ -356,7 +386,7 @@ class ToolPage extends React.Component {
               }
             </div>
 
-            {this.state.transcriptData && this.state.mediaUrl && (
+            {this.state.transcriptData && this.state.mediaUrl && (!ONE_FILE_MODE || this.state.agreement) && (
               <Redirect
                 to={{
                   pathname: "editor",

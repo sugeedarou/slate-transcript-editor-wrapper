@@ -6,6 +6,8 @@ A `constants.js` file in the `src` folder is required. It is gitingored and shou
 
 Example for `src/constants.js`:
 ```javascript
+import AGREEMENT from "PATH/TO/agreement.pdf";
+
 var SERVER_URL = "http://127.0.0.1:8000";
 var OFFLINE = true;
 const ONE_FILE_MODE = false;
