@@ -789,7 +789,7 @@ function SlateTranscriptEditor(props) {
 
     zip.generateAsync({type:"blob"}).then(
       function(content) {
-        saveAs(content, props.title + "_done.zip");
+        saveAs(content, props.title + ".to_check.zip");
       }
     );
   }
