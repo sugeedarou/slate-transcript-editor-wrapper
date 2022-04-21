@@ -105,6 +105,8 @@ function SlateTranscriptEditor(props) {
   let [activePIndex, setActivePIndex] = useState(null);
   let [beforeText, setBeforeText] = useState('');
   let [finishedPIndices, setFinishedPIndices] = useState([]);
+  const [playing, setPlaying] = useState(false);
+  const [audio1, setAudio1] = useState(null);
   // END variables for commandclips
 
   useEffect(() => {
@@ -344,7 +346,7 @@ function SlateTranscriptEditor(props) {
       default:
         return <DefaultElement {...props} />;
     }
-  }, [editMode, audioURL, activePIndex]);
+  }, [editMode, audioURL, activePIndex, playing, audio1]);
 
   const handleClassificationRadioButtonChange = (event) => {
     const key = event.target.name.split('_')[1];
@@ -572,31 +574,57 @@ function SlateTranscriptEditor(props) {
       }
     }
     const playCommandClip = () => {
-      mediaRef.current.pause();
-      const a = new Audio(audioURL);
-      a.play();
+      if (!playing) {
+        setPlaying(true);
+        mediaRef.current.pause();
+        const a = new Audio(audioURL);
+        a.addEventListener('ended', () => setPlaying(false));
+        a.play();
+        setAudio1(a);
+      } else if (audio1 !== null) {
+        audio1.pause();
+        audio1.currentTime = 0;
+        setPlaying(false);
+      }
     }
 
     const playCommandClipCheckMode = async () => {
-      const audio = await localforage.getItem(parseInt(index) + 'commandclip');
-      if (audio !== null) {
-        if (beforeText === '') {
-          const bt = props.element.children[0].text;
-          setBeforeText(bt);
+      if (!playing) {
+        setPlaying(true);
+        const audio = await localforage.getItem(parseInt(index) + 'commandclip');
+        if (audio !== null) {
+          if (beforeText === '') {
+            const bt = props.element.children[0].text;
+            setBeforeText(bt);
+          }
+          setActivePIndex(index);
+
+          const audioUrlFromBlob = URL.createObjectURL(audio);
+          setAudioUrl(audioUrlFromBlob);
+          const a = new Audio(audioUrlFromBlob);
+          a.addEventListener('ended', () => setPlaying(false));
+          a.play();
+          setAudio1(a);
+        } else {
+          setPlaying(false);
+          alert("no audio available, choose another audio file");
         }
-
-        setActivePIndex(index);
-
-        const audioUrlFromBlob = await URL.createObjectURL(audio);
-        setAudioUrl(audioUrlFromBlob);
-        const a = new Audio(audioUrlFromBlob);
-        a.play();
+      } else if (audio1 !== null) {
+        audio1.pause();
+        audio1.currentTime = 0;
+        setPlaying(false);
       } else {
-        alert("no audio available, choose another audio file");
+        setPlaying(false);
       }
     }
 
     const handleDone = async() => {
+      if (audio1 !== null) {
+        audio1.pause();
+        audio1.currentTime = 0;
+        setPlaying(false);
+      }
+
       if (finishedPIndices.includes(index)) {
         setFinishedPIndices(finishedPIndices.filter(pIndex => pIndex !== index));
         setActivePIndex(index);
@@ -715,7 +743,7 @@ function SlateTranscriptEditor(props) {
               : (activePIndex != null && activePIndex !== index) || done
             }
           >
-             <PlayCircle/>
+             {playing && activePIndex === index ? <Stop/> : <PlayCircle/>}
           </IconButton>
           <IconButton onClick={handleDone} disabled={!(((activePIndex === index) && audioURL) || (activePIndex === null && finishedPIndices.includes(index))) || isRecordingTTE}>
             <DoneOutline/>
