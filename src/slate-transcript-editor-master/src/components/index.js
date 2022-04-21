@@ -632,7 +632,7 @@ function SlateTranscriptEditor(props) {
 
         const audio = await localforage.getItem(parseInt(index) + 'commandclip');
         if (audio !== null) {
-          const audioUrlFromBlob = await URL.createObjectURL(audio);
+          const audioUrlFromBlob = URL.createObjectURL(audio);
           setAudioUrl(audioUrlFromBlob);
         } else {
           setAudioUrl(true);
