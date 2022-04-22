@@ -789,7 +789,8 @@ function SlateTranscriptEditor(props) {
 
     zip.generateAsync({type:"blob"}).then(
       function(content) {
-        saveAs(content, props.title + ".to_check.zip");
+        const exportTitle = props.title.replace(/.to_correct$/, '');
+        saveAs(content, exportTitle + ".to_check.zip");
       }
     );
   }
