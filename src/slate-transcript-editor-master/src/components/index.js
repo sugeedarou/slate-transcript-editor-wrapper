@@ -206,6 +206,19 @@ function SlateTranscriptEditor(props) {
   //   }
   // }, [mediaRef]);
 
+  useEffect(() => {
+    if (["commandclips", "commandclips2"].includes(editMode)) {
+      localforage.iterate((value, key, iterationNumber) => {
+        const regexMatch = key.match(/^(\d)+commandclip$/);
+        if (regexMatch && regexMatch.length > 1) {
+          finishedPIndices.push(parseInt(regexMatch[1]));
+        }
+      }).then(() => {
+        setFinishedPIndices(finishedPIndices.concat([]));
+      });
+    }
+  }, []);
+
   const handleModeChange = async (mode) => {
     console.log("mode changed to " + mode);
 
@@ -346,7 +359,7 @@ function SlateTranscriptEditor(props) {
       default:
         return <DefaultElement {...props} />;
     }
-  }, [editMode, audioURL, activePIndex, playing, audio1]);
+  }, [editMode, audioURL, activePIndex, playing, audio1, finishedPIndices]);
 
   const handleClassificationRadioButtonChange = (event) => {
     const key = event.target.name.split('_')[1];

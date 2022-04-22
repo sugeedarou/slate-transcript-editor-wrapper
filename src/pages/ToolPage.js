@@ -43,12 +43,13 @@ class ToolPage extends React.Component {
 
     if (["application/zip", "application/zip-compressed", "application/x-zip-compressed"].includes(file.type)
       || ext === 'zip') {
+      const zipName = file.name.split('.').slice(0, -1).join('.');
       this.setState({
         processing: true,
-        exportName: file.name.split('.').slice(0, -1).join('.'),
+        exportName: zipName,
       });
       const fileURL = URL.createObjectURL(file);
-      this.processZip(fileURL)
+      this.processZip(fileURL, zipName);
     } else {
       this.processMediaFile(file);
     }
@@ -71,15 +72,24 @@ class ToolPage extends React.Component {
     }
   }
 
-  processZip = (fileURL) => {
+  processZip = (fileURL, zipName) => {
     let includesWaveFiles = false;
     let includesMediaFile = false;
     let includesTranscriptFile = false;
     let transcriptData, id, fileName, mediaURL, exportName;
 
+    if (["commandclips", "commandclips2"].includes(DEFAULT_MODE)) {
+      localforage.getItem("title").then((titleInMemory) => {
+        if (titleInMemory !== zipName) {
+          localforage.clear();
+          localforage.setItem("title", zipName);
+        }
+      });
+    } else {
+      localforage.clear();
+    }
 
     JSZipUtils.getBinaryContent(fileURL, async (err, data) => {
-      localforage.clear();
       const zipFile = await JSZip.loadAsync(data);
       let vttFile = "";
 
