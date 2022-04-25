@@ -117,13 +117,32 @@ function SlateTranscriptEditor(props) {
     }
   }, [isProcessing]);
 
-  useEffect(() => {
-    if (props.transcriptData) {
-      const res = convertDpeToSlate(props.transcriptData);
-      setValue(res);
-      if (classificationMap !== undefined) {
-        fillClassificationMap(res);
+  useEffect(async () => {
+    let res = null;
+    let finishedPIndicesCached = null;
+
+    const title_check = await localforage.getItem('title_check');
+    if (title_check === props.title) {
+      res = await localforage.getItem('text');
+      finishedPIndicesCached = await localforage.getItem('finished');
+
+      if (res !== null && finishedPIndicesCached !== null) {
+        setValue(res);
+        setFinishedPIndices(finishedPIndicesCached);
       }
+    }
+
+    if ((res === null || finishedPIndicesCached === null) && props.transcriptData) {
+      res = convertDpeToSlate(props.transcriptData);
+      setValue(res);
+
+      if (editMode === 'commandclipsCheck') {
+        localforage.setItem('title_check', props.title);
+      }
+    }
+
+    if (res !== null && classificationMap !== undefined) {
+      fillClassificationMap(res);
     }
   }, []);
 
@@ -218,6 +237,18 @@ function SlateTranscriptEditor(props) {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (editMode === 'commandclipsCheck' && value.length > 0) {
+     localforage.setItem('text', value);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (editMode === 'commandclipsCheck' && finishedPIndices.length > 0) {
+      localforage.setItem('finished', finishedPIndices);
+    }
+  }, [finishedPIndices]);
 
   const handleModeChange = async (mode) => {
     console.log("mode changed to " + mode);
@@ -669,7 +700,7 @@ function SlateTranscriptEditor(props) {
       }
 
       finishedPIndices.push(index);
-      setFinishedPIndices(finishedPIndices);
+      setFinishedPIndices(finishedPIndices.concat([]));
       setActivePIndex(null);
       setBeforeText("");
       // resetAudio needs to be at the end, because it triggers a rerender of the element.
