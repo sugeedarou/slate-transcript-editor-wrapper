@@ -818,7 +818,10 @@ function SlateTranscriptEditor(props) {
       const ccKey = parseInt(i) + 'commandclip';
       const data = await localforage.getItem(dataKey);
       const audio = await localforage.getItem(ccKey);
-      zip.file(ccKey + ".wav", audio);
+
+      if (audio !== null) {
+        zip.file(ccKey + ".wav", audio);
+      }
 
       if (data !== null) {
         texts.push({"id": i, "afterText": data["afterText"]});
