@@ -135,10 +135,6 @@ function SlateTranscriptEditor(props) {
     if ((res === null || finishedPIndicesCached === null) && props.transcriptData) {
       res = convertDpeToSlate(props.transcriptData);
       setValue(res);
-
-      if (editMode === 'commandclipsCheck') {
-        localforage.setItem('title_check', props.title);
-      }
     }
 
     if (res !== null && classificationMap !== undefined) {

@@ -85,6 +85,13 @@ class ToolPage extends React.Component {
           localforage.setItem("title", zipName);
         }
       });
+    } else if (DEFAULT_MODE === 'commandclipsCheck') {
+      localforage.getItem("title_check").then((titleCheckInMemory) => {
+        if (titleCheckInMemory !== zipName) {
+          localforage.clear();
+          localforage.setItem("title_check", zipName);
+        }
+      });
     } else {
       localforage.clear();
     }
@@ -143,7 +150,7 @@ class ToolPage extends React.Component {
           transcriptData: transcriptData,
           mediaUrl: includesMediaFile ? mediaURL : "no media",
           id: id,
-          mode: ["commandclips", "commandclips2"].includes(DEFAULT_MODE) ? "commandclipsCheck" : DEFAULT_MODE,
+          mode: DEFAULT_MODE,
           processing: false,
           vttFile: vttWithoutDoubleMacronBelow,
         });
