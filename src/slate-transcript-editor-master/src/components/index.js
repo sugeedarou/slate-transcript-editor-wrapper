@@ -224,7 +224,7 @@ function SlateTranscriptEditor(props) {
   useEffect(() => {
     if (["commandclips", "commandclips2"].includes(editMode)) {
       localforage.iterate((value, key, iterationNumber) => {
-        const regexMatch = key.match(/^(\d)+commandclip$/);
+        const regexMatch = key.match(/^(\d+)commandclip$/);
         if (regexMatch && regexMatch.length > 1) {
           finishedPIndices.push(parseInt(regexMatch[1]));
         }
