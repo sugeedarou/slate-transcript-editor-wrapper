@@ -18,7 +18,7 @@ import getMediaURL from "../api/GetMediaURL";
 
 class ToolPage extends React.Component {
   SERVER_URL = "";
-  
+
   constructor(props) {
     super(props);
 
@@ -28,7 +28,7 @@ class ToolPage extends React.Component {
       id: null,
       taskId: "",
       fileName: "",
-      tasks:[]
+      tasks: [],
     };
   }
 
@@ -52,8 +52,7 @@ class ToolPage extends React.Component {
 
   handleLoadMediaUrl = () => {
     const URL = prompt("Paste the URL you'd like to use here:");
-    this.parseURL(URL.toString())
-
+    this.parseURL(URL.toString());
   };
 
   handleLoadTranscriptJson = (files) => {
@@ -122,16 +121,15 @@ class ToolPage extends React.Component {
 
   async getVttFromId() {
     let token = getToken();
-    let text = await GetVttCorrectionFromId(token,this.state.taskId);
+    let text = await GetVttCorrectionFromId(token, this.state.taskId);
     if (text) {
-      console.log("Hss")
+      console.log("Hss");
       // if (!window.confirm("Load your last uploaded correction?")) {
       //   console.log("%%%%%%%66666")
       //   //text = await GetVttFromId(token, this.state.taskId);
       //   text = await GetVttCorrectionFromIdWA(token, this.state.taskId);
       // }
-    }
-    else{
+    } else {
       text = await GetVttFromId(token, this.state.taskId);
     }
     if (text) this.handleLoadTranscriptFromServer(text);
@@ -141,15 +139,12 @@ class ToolPage extends React.Component {
       });
   }
 
-  async getMediaURL()
-  {
+  async getMediaURL() {
     let mediaURL = await getMediaURL(this.state.taskId);
-    if(mediaURL)
-    {
-      this.setState({mediaUrl:mediaURL})
-    }
-    else{
-      alert("failed to load files")
+    if (mediaURL) {
+      this.setState({ mediaUrl: mediaURL });
+    } else {
+      alert("failed to load files");
     }
   }
 
@@ -173,13 +168,11 @@ class ToolPage extends React.Component {
     }
   };*/
 
-  
-  parseURL(url)
-  {
+  parseURL(url) {
     let parsed = qs.parse(url.split("/?")[1]);
     if (!(parsed.task_id && parsed.task_id != ""))
       parsed = qs.parse(url.split("shared?")[1]);
-    
+
     if (parsed.task_id && parsed.task_id != "") {
       this.state = {
         transcriptData: null,
@@ -188,15 +181,16 @@ class ToolPage extends React.Component {
         taskId: parsed.task_id,
         fileName: "",
       };
-      
+
       this.getVttFromId();
       this.getMediaURL();
+    } else {
+      toast.error(
+        "Failed to load data. Please make sure the Link you got is correct.",
+        { position: "bottom-center" }
+      );
     }
-    else{
-
-      toast.error("Failed to load data. Please make sure the Link you got is correct.", { position: "bottom-center" });
-    }   
-  } 
+  }
 
   componentDidMount() {
     //this.getTasks();
@@ -213,6 +207,20 @@ class ToolPage extends React.Component {
             <h1 style={{ color: "#ffffff", fontSize: 75 }}>
               Transcription Corrector
             </h1>
+
+            <div
+                  style={{
+                    marginBottom: "20px",
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    padding: 20,
+                    borderRadius: 10,
+                    width: "60%",
+                  }}
+                >
+                  <strong>
+                    You can press save if you want to continue your work later on, or press the button done in order to mark your task as finished
+                  </strong>
+                </div>
 
             <div
               style={{
@@ -239,12 +247,13 @@ class ToolPage extends React.Component {
                     <CheckCircleIcon style={{ marginLeft: "10px" }} />
                   )}
                 </Button>*/}
+               
 
                 <Button
                   variant="contained"
                   component="label"
                   style={{ margin: "10px", marginRight: "0" }}
-                  onClick={()=>this.handleLoadMediaUrl()}
+                  onClick={() => this.handleLoadMediaUrl()}
                 >
                   Got a URL
                   {this.state.mediaUrl && (
@@ -256,9 +265,7 @@ class ToolPage extends React.Component {
 
             <div style={{ height: 15 }}></div>
 
-
-
-           {/*<div
+            {/*<div
             style={{
               backgroundColor: "rgba(255,255,255,0.05)",
               padding: 20,
@@ -276,7 +283,7 @@ class ToolPage extends React.Component {
                 if(!e.assigned&&!e.corrected)
                   return <TaskRow key={i} task={e}></TaskRow>;
               })}
-          </div> */} 
+          </div> */}
             {/*<div
               style={{
                 backgroundColor: "rgba(255,255,255,0.05)",
@@ -354,7 +361,7 @@ class ToolPage extends React.Component {
               ></Redirect>
             )}
 
-           {/* <img
+            {/* <img
               src={require("../images/background.png").default}
               style={{
                 bottom: "0%",
