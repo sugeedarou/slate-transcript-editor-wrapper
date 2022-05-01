@@ -1,7 +1,7 @@
 import { MOCK_BACKEND, SERVER_URL } from "../constants";
 import { getToken } from "../user/User";
 
- export default async function SetVttCorrection(vtt_name,vtt_content)
+ export default async function SetVttCorrection(vtt_name,vtt_content,finished)
  {
      let response;
      var myHeaders = new Headers();
@@ -11,6 +11,7 @@ import { getToken } from "../user/User";
     if(vtt_name!="")
         formdata.append("vtt_name", vtt_name);
     formdata.append("vtt", vtt_content);
+    formdata.append("finished", finished);
      
      var requestOptions = {
         method: 'POST',

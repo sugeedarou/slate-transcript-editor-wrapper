@@ -583,7 +583,7 @@ function SlateTranscriptEditor(props) {
       if(editorContnet!=lastEditorContent)
       {
 
-      let response = await SetVttCorrection(props.fileName,editorContnet)
+      let response = await SetVttCorrection(props.fileName,editorContnet,"False")
       if(response)
       {
         setLastEditorContent(editorContnet)
@@ -621,6 +621,38 @@ function SlateTranscriptEditor(props) {
     } finally {
       setIsProcessing(false);
     }*/
+  };
+
+  const handleDone = async () => {
+
+    try
+    {
+      setIsProcessing(true);
+      console.log("inside save")
+      //const format = props.autoSaveContentType ? props.autoSaveContentType : 'digitalpaperedit';
+      // const editorContnet = await handleExport({ type: `json-${format}`, isDownload: false });
+      let editorContnet = await handleExport({ type: `vtt`, isDownload: false });
+      let pre = `WEBVTT\n\nNOTE ${props.id}\n\n`;
+      console.log('editorContnet')
+      console.log(editorContnet)
+      pre += editorContnet
+      editorContnet = pre
+      if(editorContnet!=lastEditorContent)
+      {
+
+      let response = await SetVttCorrection(props.fileName,editorContnet,"True")
+      if(response)
+      {
+        setLastEditorContent(editorContnet)
+        toast.success("Uploaded to the server successfully", { position: "bottom-center" });
+      }
+      else
+        toast.error("failed to uploaded to the server", { position: "bottom-center" });
+      }
+    }
+    finally {
+      setIsProcessing(false);
+    }
   };
 
   /**
@@ -1003,6 +1035,7 @@ function SlateTranscriptEditor(props) {
               handleUndo={handleUndo}
               handleRedo={handleRedo}
               isEditable={props.isEditable}
+              handleDone={handleDone}
             />
           </Grid>
         </Grid>
