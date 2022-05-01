@@ -34,6 +34,7 @@ function SideBtns({
   handleRestoreTimecodes,
   handleReplaceText,
   handleSave,
+  handleDone,
   handleAnalyticsEvents,
   REPLACE_WHOLE_TEXT_INSTRUCTION,
   optionalBtns,
@@ -429,6 +430,24 @@ useEffect(() => {
             }}
           >
             Save
+          </Button>
+      )}
+      {isEditable && (
+          <Button id="savebtn"
+          ref={saveRef}
+          onClick={handleDone}
+            style={{
+              backgroundColor: "white",//"#20DF7F",
+              borderColor: "blue",
+              border: "2px solid",
+              width: "60%",
+              height: 35,
+              borderRadius: 7,
+              marginTop: 10,
+              color: "black",
+            }}
+          >
+            DONE
           </Button>
       )}
     </Grid>
