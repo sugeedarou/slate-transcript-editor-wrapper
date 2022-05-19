@@ -420,7 +420,7 @@ function SlateTranscriptEditor(props) {
           });
         }
       }
-    } else if (e.target.dataset.slateString) {
+    } /*else if (e.target.dataset.slateString) {
       if (e.target.parentNode.dataset.start) {
         const { startWord } = SlateHelpers.getSelectionNodes(editor, editor.selection);
         if (mediaRef && mediaRef.current && startWord && startWord.start) {
@@ -455,7 +455,7 @@ function SlateTranscriptEditor(props) {
         }
       }
     }
-  };
+  */};
 
   const handleReplaceText = () => {
     const newText = prompt(`Paste the text to replace here.\n\n${REPLACE_WHOLE_TEXT_INSTRUCTION}`);

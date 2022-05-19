@@ -16,13 +16,16 @@ import TaskRow from "../components/TaskRow";
 import getTaskList from "../api/GetTaskList";
 import getMediaURL from "../api/GetMediaURL";
 import getUserInfo from "../api/GetUserInfo";
-
+import { useHistory } from "react-router-dom";
+import { setCanMakeAs } from "../user/User";
 class ToolPage extends React.Component {
+
+  
   SERVER_URL = "";
 
   constructor(props) {
     super(props);
-    let canMakeAs = getCanMakeAs()
+    
     this.state = {
       transcriptData: null,
       mediaUrl: null,
@@ -30,12 +33,32 @@ class ToolPage extends React.Component {
       taskId: "",
       fileName: "",
       tasks: [],
-      canMakeAs:canMakeAs
+      canMakeAs:false,
+      redirectToAdminPage:false
     };
+    this.checkCanMakeAs()
+  }
 
-    
-    
-    
+  checkCanMakeAs()
+  {
+    getUserInfo(getToken()).then(
+      r=>
+      {
+        console.log(r)
+        if(r)
+        {
+          if(r.canMakeAssignments)
+          {
+            setCanMakeAs(true)
+            this.setState({canMakeAs:true})
+          }
+          else
+          {
+            setCanMakeAs(false)
+          }
+        }
+      }
+    )
   }
 
   // https://stackoverflow.com/questions/8885701/play-local-hard-drive-video-file-with-html5-video-tag
@@ -261,7 +284,10 @@ class ToolPage extends React.Component {
                   variant="contained"
                   component="label"
                   style={{ margin: "10px", marginRight: "0" }}
-                  onClick={() => this.handleLoadMediaUrl()}
+                  onClick={() => {
+                    
+                    this.setState({redirectToAdminPage:true});
+                  }}
                 >
                   REVIEW Corrections
                   {this.state.mediaUrl && (
@@ -409,7 +435,13 @@ class ToolPage extends React.Component {
                 }}
               ></Redirect>
             )}
-
+          {this.state.redirectToAdminPage && (
+                        <Redirect
+                          to={{
+                            pathname: "adminpage",
+                          }}
+                        ></Redirect>
+                      )}
             {/* <img
               src={require("../images/background.png").default}
               style={{

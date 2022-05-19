@@ -20,7 +20,6 @@ function SlateTranscriptEditorPageListener() {
         id={props.state.id}
         title={props.state.exportName}
         showTitle={true}
-        handleSaveEditor={props.state.uploadTranscript}
         fileName={props.state.fileName}
         isEditable={false}
       />

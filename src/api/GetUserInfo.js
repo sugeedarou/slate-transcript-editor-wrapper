@@ -1,5 +1,5 @@
 import { MOCK_BACKEND, SERVER_URL } from "../constants";
-import { setCanMakeAs } from "../user/User";
+
 export default async function getUserInfo(token)
  {
      let response;
@@ -18,10 +18,8 @@ export default async function getUserInfo(token)
      response = await fetch(SERVER_URL+"auth/userinfo/", requestOptions)
      console.log(response)
      if(response.status==200)
-     {
-          let jsonResp = response.json()
-          setCanMakeAs(jsonResp.canMakeAssignments)
-         return jsonResp
+     {    
+         return response.json()
     }
      return false;
      
