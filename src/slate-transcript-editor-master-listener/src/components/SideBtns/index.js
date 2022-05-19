@@ -43,19 +43,6 @@ function SideBtns({
   isEditable,
 }) {
   const [anchorMenuEl, setAnchorMenuEl] = useState(null);
-  const saveRef = useRef(null);
-  
-  
-  //called every 10 minutes
-  const INTERVAL = 600000;
-useEffect(() => {
-  const interval = setInterval(() => {
-    if(saveRef)
-      saveRef.current.click()
-  }, INTERVAL);
-
-  return () => clearInterval(interval); // clear interval on unmount
-}, [])
 
   // used by MUI export menu
   const handleMenuClose = () => {
@@ -416,7 +403,6 @@ useEffect(() => {
       <Grid item>{optionalBtns}</Grid>
       {isEditable && (
           <Button id="savebtn"
-          ref={saveRef}
           onClick={handleSave}
             style={{
               backgroundColor: "white",//"#20DF7F",
@@ -434,7 +420,6 @@ useEffect(() => {
       )}
       {isEditable && (
           <Button id="savebtn"
-          ref={saveRef}
           onClick={handleDone}
             style={{
               backgroundColor: "white",//"#20DF7F",

@@ -1,7 +1,7 @@
 import "../App.css";
 import React from "react";
 import { Redirect } from "react-router-dom";
-import SlateTranscriptEditor from "../slate-transcript-editor-master/src/components/index.js";
+import SlateTranscriptEditor from "../slate-transcript-editor-master-listener/src/components/index.js";
 import { isAuth } from "../user/User";
 import {useLocation} from 'react-router-dom';
 import LogoutButton from "../components/LogoutButton";
