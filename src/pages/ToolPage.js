@@ -4,7 +4,7 @@ import "../App.css";
 import Button from "@mui/material/Button";
 import vttToDraft from "../import-adapter/vtt";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { getToken, isAuth, setTaskId } from "../user/User";
+import { getCanMakeAs, getToken, isAuth, setTaskId } from "../user/User";
 import { Redirect } from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
 import GetVttFromId from "../api/GetVttFromId";
@@ -15,13 +15,14 @@ import GetVttCorrectionFromId from "../api/GetVttCorrectionFromId";
 import TaskRow from "../components/TaskRow";
 import getTaskList from "../api/GetTaskList";
 import getMediaURL from "../api/GetMediaURL";
+import getUserInfo from "../api/GetUserInfo";
 
 class ToolPage extends React.Component {
   SERVER_URL = "";
 
   constructor(props) {
     super(props);
-
+    let canMakeAs = getCanMakeAs()
     this.state = {
       transcriptData: null,
       mediaUrl: null,
@@ -29,7 +30,12 @@ class ToolPage extends React.Component {
       taskId: "",
       fileName: "",
       tasks: [],
+      canMakeAs:canMakeAs
     };
+
+    
+    
+    
   }
 
   // https://stackoverflow.com/questions/8885701/play-local-hard-drive-video-file-with-html5-video-tag
@@ -149,6 +155,7 @@ class ToolPage extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+
     /*if (prevState.transcriptData !== this.state.transcriptData) {
       this.checkTranscriptId();
     }*/
@@ -221,7 +228,49 @@ class ToolPage extends React.Component {
                     You can press save if you want to continue your work later on, or press the button done in order to mark your task as finished
                   </strong>
                 </div>
+              {this.state.canMakeAs&&
+                <div
+              style={{
+                backgroundColor: "rgba(255,255,255,0.05)",
+                borderRadius: 10,
+                width: "30%",
+                padding: 20,
+                marginBottom:"20px"
+              }}
+            >
+              <p style={{ color: "#ffffff", fontSize: 10 }}>
+                {/*<Button
+                  variant="contained"
+                  component="label"
+                  style={{ margin: "10px", marginRight: "0" }}
+                >
+                  Got a URL
+                  <input
+                    hidden
+                    type={"file"}
+                    id={"mediaFile"}
+                    onChange={(e) => this.handleLoadMedia(e.target.files)}
+                  />
+                  {this.state.mediaUrl && (
+                    <CheckCircleIcon style={{ marginLeft: "10px" }} />
+                  )}
+                </Button>*/}
+               
 
+                <Button
+                  variant="contained"
+                  component="label"
+                  style={{ margin: "10px", marginRight: "0" }}
+                  onClick={() => this.handleLoadMediaUrl()}
+                >
+                  REVIEW Corrections
+                  {this.state.mediaUrl && (
+                    <CheckCircleIcon style={{ marginLeft: "10px" }} />
+                  )}
+                </Button>
+              </p>
+            </div>
+          }
             <div
               style={{
                 backgroundColor: "rgba(255,255,255,0.05)",

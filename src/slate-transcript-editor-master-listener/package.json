@@ -1,0 +1,76 @@
+{
+  "name": "slate-transcript-editor",
+  "version": "0.1.6-alpha.19",
+  "description": "A React component to make correcting automated transcriptions of audio and video easier and faster. Using the Slate Editor",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --findRelatedTests ./src/util/export-adapters/subtitles-generator/compose-subtitles/csv/index.js",
+    "start": "npm run storybook",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook -c .storybook -o .out",
+    "deploy:ghpages": "npm run build-storybook  && cp .nojekyll .out/.nojekyll && gh-pages -d .out",
+    "build:component": "cross-env BABEL_ENV=production babel src -d dist && /bin/cp -rf package.json dist && /bin/cp -rf README.md dist",
+    "publish:public": "npm run build:component && npm publish dist --access public",
+    "publish:dry:run": "npm run build:component && npm publish  dist --dry-run",
+    "lint": "prettier --write \"**/*.js\""
+  },
+  "keywords": [],
+  "author": "Pietro Passarelli",
+  "contributors": [
+    {
+      "name": "Pietro Passarelli",
+      "url": "https://github.com/pietrop"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/pietrop/slate-transcript-editor/issues"
+  },
+  "homepage": "https://github.com/pietrop/slate-transcript-editor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pietrop/slate-transcript-editor.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-react": "^7.9.4",
+    "@storybook/addon-a11y": "^5.3.18",
+    "@storybook/addon-actions": "^5.3.18",
+    "@storybook/addon-info": "^5.3.18",
+    "@storybook/addon-knobs": "^5.3.18",
+    "@storybook/addon-links": "^5.3.18",
+    "@storybook/addon-storysource": "^6.3.0",
+    "@storybook/addons": "^5.3.18",
+    "@storybook/react": "^5.3.18",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "cross-env": "^7.0.2",
+    "gh-pages": "^2.2.0",
+    "husky": "^4.2.5",
+    "jest": "^27.0.5",
+    "node-fetch": ">=2.6.1",
+    "prettier": "2.0.5",
+    "pretty-quick": "^2.0.1"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "docx": "4.7.1",
+    "fontsource-roboto": "^4.0.0",
+    "lodash": "^4.17.20",
+    "p-debounce": "^3.0.1",
+    "prop-types": "^15.7.2",
+    "sbd": "^1.0.18",
+    "slate": "^0.59.0",
+    "slate-history": "^0.59.0",
+    "slate-react": "^0.59.0",
+    "smpte-timecode": "^1.2.3",
+    "stt-align-node": "^2.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  }
+}

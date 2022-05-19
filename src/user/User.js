@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 const USER_COOKIES_KEY = "token";
 const EMAIL_COOKIES_KEY = "email";
 const TASK_ID_COOKIES_KEY = "t_id";
-
+const TASK_CAN_MAKE_AS_COOKIES_KEY = "CMA_id";
 export function isAuth()
 {
    let cookie = Cookies.get(USER_COOKIES_KEY)
@@ -54,5 +54,19 @@ export function getTaskId()
    if(cookie)
         return cookie
     return ""
+
+}
+
+export function setCanMakeAs(canMakeAs)
+{
+    Cookies.set(TASK_CAN_MAKE_AS_COOKIES_KEY, canMakeAs);
+}
+
+export function getCanMakeAs()
+{
+   let cookie = Cookies.get(TASK_CAN_MAKE_AS_COOKIES_KEY)
+   if(cookie)
+        return cookie
+    return false
 
 }
