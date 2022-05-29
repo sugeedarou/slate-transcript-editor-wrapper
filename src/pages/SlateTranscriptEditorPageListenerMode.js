@@ -5,14 +5,35 @@ import SlateTranscriptEditor from "../slate-transcript-editor-master-listener/sr
 import { isAuth } from "../user/User";
 import {useLocation} from 'react-router-dom';
 import LogoutButton from "../components/LogoutButton";
-import BackButton from "../components/BackButton";
+import { useHistory } from "react-router-dom";
 
 function SlateTranscriptEditorPageListener() {
+  const history = useHistory();
   const props = useLocation();
   if (isAuth()) {
     return (
       <div>
-      <BackButton></BackButton>
+      <button
+            onClick={()=>
+            {
+              history.replace("/adminpage");
+            }}
+            style={{
+              position: "absolute",
+              top: "4%",
+              left: "2%",
+              zIndex: 10,
+              padding: 10,
+              borderRadius: 10,
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              color: "white",
+              border: "none",
+              fontSize: "0.75em",
+              cursor: "pointer",
+            }}
+          >
+            Back
+          </button>
       <LogoutButton></LogoutButton>
       <SlateTranscriptEditor
         mediaUrl={props.state.mediaUrl}

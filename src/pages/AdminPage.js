@@ -12,6 +12,8 @@ import { Button } from "@mui/material";
 import GetVttCorrectionFromId from "../api/GetVttCorrectionFromId";
 import GetVttFromId from "../api/GetVttFromId";
 import getMediaURL from "../api/GetMediaURL";
+import BackButton from "../components/BackButton"
+import GetOrgVttFromId from "../api/GetOrgVttFromId";
 class AdminPage extends React.Component {
   columns = [
     { field: "task_name", headerName: "Task Name", flex: 1 },
@@ -23,7 +25,7 @@ class AdminPage extends React.Component {
       flex: 1,
       renderCell: (params) => {
         let date = new Date(params.row.date_transcribed)
-        return <div>{date.getDay()+"/"+date.getMonth()+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()}</div>}
+        return <div>{date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()}</div>}
     },
     { field: "corrected_user", headerName: "Corrector Email", flex: 1 },
     {
@@ -33,16 +35,25 @@ class AdminPage extends React.Component {
       flex: 1,
       renderCell: (params) => {
       let date = new Date(params.row.date_corrected)
-      return <div>{date.getDay()+"/"+date.getMonth()+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()}</div>}
+      
+      return <div>{date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()}</div>}
     },
-    { field: "language", headerName: "language Date", type: "text", flex: 1 },
+    { field: "language", headerName: "language", type: "text"},
     {
       field: "actions",
-      headerName: "Actions",
+      headerName: "Original",
       type: "number",
       align: "left",
       headerAlign: "left",
       renderCell: (params) => <Button onClick={()=>{this.openListener(params)}}>listen</Button>,
+    },
+    {
+      field: "actions2",
+      headerName: "Corrected",
+      type: "number",
+      align: "left",
+      headerAlign: "left",
+      renderCell: (params) => <Button onClick={()=>{this.openListenerOriginal(params)}}>listen</Button>,
     },
   ];
 
@@ -99,6 +110,39 @@ class AdminPage extends React.Component {
     this.getMediaURL();
   }
 
+  openListenerOriginal(params)
+  {
+    this.state = {
+      transcriptData: null,
+      mediaUrl: null,
+      id: null,
+      taskId: params.row.id,
+      fileName: "",
+    };
+
+    this.getOrgVttFromId(params.row.corrected_user_id);
+    this.getMediaURL();
+  }
+
+
+   async getOrgVttFromId(userId) {
+    let token = getToken();
+    let text = await GetOrgVttFromId(token, this.state.taskId,userId);
+    if (text) {
+      console.log("Hss");
+      this.handleLoadTranscriptFromServer(text);
+      // if (!window.confirm("Load your last uploaded correction?")) {
+      //   console.log("%%%%%%%66666")
+      //   //text = await GetVttFromId(token, this.state.taskId);
+      //   text = await GetVttCorrectionFromIdWA(token, this.state.taskId);
+      // }
+    } else {
+      toast.error("Failed to load the file", {
+        position: "bottom-center",
+      });
+    }
+    
+  }
   async getVttFromId() {
     let token = getToken();
     let text = await GetVttCorrectionFromId(token, this.state.taskId);
@@ -155,6 +199,7 @@ class AdminPage extends React.Component {
       return (
         <div className="App">
           <header className="App-header">
+            <BackButton></BackButton>
             <LogoutButton></LogoutButton>
             {/* <Button onClick={ () => this.handleLoadMediaUrl()} variant="contained">Load Media URL</Button> */}
 
