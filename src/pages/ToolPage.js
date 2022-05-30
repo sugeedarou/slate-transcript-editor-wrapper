@@ -139,6 +139,7 @@ class ToolPage extends React.Component {
 
       const doubleMacronBelow = '\u035f';
       const vttWithoutDoubleMacronBelow = vttFile.replaceAll(doubleMacronBelow, '');
+      const vttWithoutDoubleSpaces = vttWithoutDoubleMacronBelow.replaceAll('   ', '');
 
       if (!includesTranscriptFile || (!includesWaveFiles && !includesMediaFile)) {
         this.setState({
@@ -152,7 +153,7 @@ class ToolPage extends React.Component {
           id: id,
           mode: DEFAULT_MODE,
           processing: false,
-          vttFile: vttWithoutDoubleMacronBelow,
+          vttFile: vttWithoutDoubleSpaces,
         });
       } else {
         this.setState({
@@ -161,7 +162,7 @@ class ToolPage extends React.Component {
           id: id,
           mode: DEFAULT_MODE,
           processing: false,
-          vttFile: vttWithoutDoubleMacronBelow,
+          vttFile: vttWithoutDoubleSpaces,
         });
       }
 
