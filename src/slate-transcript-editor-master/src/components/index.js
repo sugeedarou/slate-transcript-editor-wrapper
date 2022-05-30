@@ -58,7 +58,7 @@ import { getTaskId } from '../../../user/User';
 import useRecorder from './useRecorder';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { OFFLINE } from '../../../constants';
+import { OFFLINE, ERROR_IF_NOT_EDITED } from '../../../constants';
 import localforage from 'localforage';
 
 const PLAYBACK_RATE_VALUES = [0.2, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5];
@@ -683,7 +683,7 @@ function SlateTranscriptEditor(props) {
 
       if (editable) {
         const at = props.element.children[0].text;
-        if (at === beforeText) {
+        if (ERROR_IF_NOT_EDITED && at === beforeText) {
           alert("you need to edit something!");
           return;
         }
